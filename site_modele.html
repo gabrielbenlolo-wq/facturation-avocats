@@ -365,7 +365,8 @@ function coutsFacture(f){
     // un emballage propre à un poids de colis (carton 4 kg, caisse 10 kg) ne compte que pour ces colis
     const qte = p.kg_colis && f.kg_colis !== p.kg_colis ? 0 : quantite(f, base) * (p.par || 1);
     prix = enDh(prix, devise);
-    return {p, qte, prix, total: prix == null ? 0 : qte * prix};
+    const exemple = p.bareme ? !!(ligneTransport(f) || {}).exemple : !!p.exemple;
+    return {p, qte, prix, exemple, total: prix == null ? 0 : qte * prix};
   });
   return {lignes, total: lignes.reduce((t, l) => t + l.total, 0)};
 }
@@ -385,8 +386,12 @@ function depenses(){
   const msgs = [];
   if (manque.length) msgs.push(`Prix à renseigner : ${manque.join(", ")}.`);
   if (sansTransport) msgs.push(`Transport pas encore chiffré pour ${sansTransport} facture(s)` + (T.transport && T.transport.attendu ? ` : barème attendu après le ${T.transport.attendu}.` : "."));
+  if (msgs.length) msgs.push("Tant qu'ils manquent, ces postes ne sont pas comptés et le résultat affiché est trop haut.");
+  const exemples = [...POSTES.filter(p => p.exemple).map(p => p.libelle),
+    ...BAREME.filter(l => l.exemple).map(l => `Transport ${l.pays.charAt(0) + l.pays.slice(1).toLowerCase()} par ${l.mode}`)];
+  if (exemples.length) msgs.push(`Prix d'exemple, à confirmer : ${exemples.join(", ")}.`);
   $("dep-manque").hidden = !msgs.length;
-  $("dep-manque").textContent = msgs.join(" ") + " Tant qu'ils manquent, ces postes ne sont pas comptés et le résultat affiché est trop haut.";
+  $("dep-manque").textContent = msgs.join(" ");
 
   const parF = F.map(f => ({f, ...coutsFacture(f), ca: taux ? f.montant * taux : null}));
   const dep = parF.reduce((t, x) => t + x.total, 0), net = sum(F,"net"), pal = sum(F,"palettes");
@@ -406,7 +411,7 @@ function depenses(){
   const parPoste = POSTES.map(p => {
     const ls = parF.map(x => x.lignes.find(l => l.p === p));
     const prix = [...new Set(ls.map(l => l.prix))];
-    return {p, qte: ls.reduce((t,l) => t + l.qte, 0), total: ls.reduce((t,l) => t + l.total, 0), prix};
+    return {p, qte: ls.reduce((t,l) => t + l.qte, 0), total: ls.reduce((t,l) => t + l.total, 0), prix, exemple: ls.some(l => l.exemple)};
   });
   const rangs = [];
   Object.entries(FAMILLES).forEach(([fam, [titre, c]]) => {
@@ -418,7 +423,7 @@ function depenses(){
     ps.forEach(x => {
       const connus = x.prix.filter(v => v != null);
       const pu = el("span",{className:"pu" + (connus.length ? "" : " vide"),
-        textContent: !connus.length ? "à renseigner" : connus.length > 1 ? "plusieurs" : dhs(connus[0]) + " DH"});
+        textContent: (!connus.length ? "à renseigner" : connus.length > 1 ? "plusieurs" : dhs(connus[0]) + " DH") + (x.exemple ? " · ex." : "")});
       const calcul = x.p.bareme ? "barème pays × mode"
         : `${x.p.par} × ${x.p.base === "kg" ? "kg net" : x.p.base}${x.p.kg_colis ? ` de ${x.p.kg_colis} kg` : ""}`;
       const tr = el("tr",{},[td(x.p.libelle), td(calcul), td(x.p.bareme ? "—" : ent.format(x.qte),"n"),
@@ -461,7 +466,7 @@ function depenses(){
     const v = p.prix[p.prix.length - 1].dh;
     const unite = {kg:" DH/kg", envoi:" DH/envoi"}[p.base] || " DH";
     const d = el("div",{className:"tarif" + (v == null ? " vide" : "")},[el("span",{textContent:p.libelle + (p.par > 1 ? ` (×${p.par})` : "")}),
-      el("b",{textContent: v == null ? "à renseigner" : dhs(v) + unite})]);
+      el("b",{textContent: v == null ? "à renseigner" : dhs(v) + unite}), ...(p.exemple ? [el("span",{textContent:"exemple, à confirmer"})] : [])]);
     d.style.setProperty("--c", `var(${FAMILLES[famille(p)][1]})`);
     return d;
   }));
@@ -470,8 +475,14 @@ function depenses(){
   const unite = {envoi:"envoi", palette:"palette", kg:"kg net"};
   const cellule = (pays, mode) => {
     const l = BAREME.find(x => x.pays === pays && x.mode === mode), v = l ? l.prix[l.prix.length - 1].dh : null;
-    return el("td",{className:"n"},[el("span",{className:"pu" + (v == null ? " vide" : ""),
-      textContent: v == null ? "à renseigner" : `${dhs(v)} ${l.devise === "EUR" ? "€" : "DH"} / ${unite[l.base] || l.base}`})]);
+    const kids = [el("span",{className:"pu" + (v == null ? " vide" : ""),
+      textContent: v == null ? "à renseigner" : `${dhs(v)} ${l.devise === "EUR" ? "€" : "DH"} / ${unite[l.base] || l.base}`})];
+    // prix d'un voyage ÷ poids net moyen des camions partis vers ce pays × cours = transport au kilo
+    const Fl = D.factures.filter(f => ligneTransport(f) === l), kgMoy = sum(Fl,"net") / (Fl.length || 1);
+    const parKg = v == null ? null : l.base === "envoi" ? (Fl.length ? enDh(v, l.devise) / kgMoy : null) : l.base === "kg" ? enDh(v, l.devise) : null;
+    if (parKg != null || (v != null && l.exemple)) kids.push(el("div",{className:"muted",style:"font-size:.78rem",
+      textContent:[parKg != null ? `≈ ${dhs(parKg)} DH/kg net` : "", l.exemple ? "exemple" : ""].filter(Boolean).join(" · ")}));
+    return el("td",{className:"n"}, kids);
   };
   const pays = [...new Set(BAREME.map(l => l.pays))];
   $("dep-bareme").replaceChildren(...pays.map(p => {

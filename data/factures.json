@@ -511,7 +511,7 @@
   ],
   "a_completer": [],
   "tarifs": {
-    "_note": "Prix d'achat en DH HT. base = palette, colis ou kg (poids net facturé) ; par = quantité par base. Un changement de prix = nouvelle ligne {depuis, dh} : les factures plus anciennes gardent l'ancien prix. dh null = prix à renseigner. kg_colis = le poste ne compte que pour les factures dont le colis fait ce poids (carton 4 kg, caisse plastique 10 kg).",
+    "_note": "Prix d'achat en DH HT. base = palette, colis ou kg (poids net facturé) ; par = quantité par base. Un changement de prix = nouvelle ligne {depuis, dh} : les factures plus anciennes gardent l'ancien prix. dh null = prix à renseigner. kg_colis = le poste ne compte que pour les factures dont le colis fait ce poids (carton 4 kg, caisse plastique 10 kg). exemple = prix provisoire donné pour préparer la page, à confirmer. Le champ « dh » contient le montant dans la devise du poste (EUR si devise = EUR).",
     "postes": [
       {
         "id": "palette",
@@ -621,15 +621,16 @@
       {
         "id": "export",
         "libelle": "Frais d'export",
-        "base": "envoi",
+        "base": "kg",
         "famille": "transport",
         "par": 1,
         "prix": [
           {
             "depuis": "2026-10-10",
-            "dh": null
+            "dh": 0.15
           }
-        ]
+        ],
+        "exemple": true
       }
     ],
     "transport": {
@@ -712,13 +713,14 @@
           "pays": "HOLLANDE",
           "mode": "route",
           "base": "envoi",
-          "devise": "DH",
+          "devise": "EUR",
           "prix": [
             {
               "depuis": "2026-10-10",
-              "dh": null
+              "dh": 5700.0
             }
-          ]
+          ],
+          "exemple": true
         },
         {
           "pays": "HOLLANDE",
