@@ -340,7 +340,8 @@ const dhs = v => new Intl.NumberFormat("fr-FR",{minimumFractionDigits:2,maximumF
 
 function coutsFacture(f){
   const lignes = POSTES.map(p => {
-    const qte = (f[BASE[p.base]] || 0) * p.par, prix = prixAu(p, f.date);
+    // un emballage propre à un poids de colis (carton 4 kg, caisse 10 kg) ne compte que pour ces colis
+    const qte = p.kg_colis && f.kg_colis !== p.kg_colis ? 0 : (f[BASE[p.base]] || 0) * p.par, prix = prixAu(p, f.date);
     return {p, qte, prix, total: prix == null ? 0 : qte * prix};
   });
   return {lignes, total: lignes.reduce((t, l) => t + l.total, 0)};
@@ -391,7 +392,7 @@ function depenses(){
       const connus = x.prix.filter(v => v != null);
       const pu = el("span",{className:"pu" + (connus.length ? "" : " vide"),
         textContent: !connus.length ? "à renseigner" : connus.length > 1 ? "plusieurs" : dhs(connus[0]) + " DH"});
-      const tr = el("tr",{},[td(x.p.libelle), td(`${x.p.par} × ${base === "kg" ? "kg net" : base}`), td(ent.format(x.qte),"n"),
+      const tr = el("tr",{},[td(x.p.libelle), td(`${x.p.par} × ${base === "kg" ? "kg net" : base}${x.p.kg_colis ? ` de ${x.p.kg_colis} kg` : ""}`), td(ent.format(x.qte),"n"),
         el("td",{className:"n"},[pu]), td(connus.length ? ent.format(Math.round(x.total)) : "—","n")]);
       tr.style.setProperty("--c", `var(${c})`); rangs.push(tr);
     });
@@ -447,7 +448,7 @@ Réponds en français, simplement et précisément, uniquement à partir des don
 - « prix_unit » est le prix par colis ; « kg_colis » le poids d'un colis ; « net »/« brut » en kg ; « montant » en euros.
 - « cours_eur_mad » est le cours euro → dirham du moment (taux, source, heure) : utilise-le pour toute conversion en dirhams (DH) et précise le cours employé.
 - « colis_par_calibre » donne le nombre de colis par calibre ; « 14-16 » est une palette mixte.
-- « tarifs_depenses » donne les prix d'achat en DH (base palette, colis ou kg net ; « par » = quantité par base ; prix daté « depuis », dh null = pas encore renseigné). Dépenses d'une facture = somme des quantités × prix en vigueur à sa date ; résultat = montant × cours − dépenses. Signale les prix manquants.
+- « tarifs_depenses » donne les prix d'achat en DH (base palette, colis ou kg net ; « par » = quantité par base ; prix daté « depuis », dh null = pas encore renseigné ; « kg_colis » = ne s'applique qu'aux factures dont le colis fait ce poids, ex. carton 4 kg ou caisse plastique 10 kg). Dépenses d'une facture = somme des quantités × prix en vigueur à sa date ; résultat = montant × cours − dépenses. Signale les prix manquants.
 - Si l'information n'est pas dans les données, dis-le clairement et ne l'invente pas.
 - Pas de tableaux Markdown ni de titres ; des phrases courtes ou des listes à tirets. Montants au format français (44 880,00 €).
 Date du jour : ${new Date().toLocaleDateString("fr-FR")}.
