@@ -132,10 +132,15 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
 .flux .t{height:14px;border-radius:4px;min-width:2px}
 .flux .v{text-align:right;font-weight:600}
 .tarifs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:8px}
-.tarif{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:8px;padding:7px 10px;display:grid;gap:1px;background:var(--panel)}
+.tarif{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:8px;padding:7px 10px;display:grid;gap:1px;align-content:start;background:var(--panel)}
 .tarif span{font-size:.75rem;color:var(--muted)}
 .tarif b{font-family:var(--f-display);font-size:1.12rem;font-variant-numeric:tabular-nums}
 .tarif.vide b{color:var(--warn);font-family:var(--f-body);font-size:.9rem}
+/* total des frais au kilo : toute la largeur, en gros */
+.tarif.total{grid-column:1/-1;border-left-width:8px;background:color-mix(in srgb,var(--c) 14%,var(--panel));padding:12px 16px}
+.tarif.total span{font-size:.85rem;font-weight:600;color:var(--c);text-transform:uppercase;letter-spacing:.06em}
+.tarif.total b{font-size:clamp(1.8rem,4vw,2.4rem);font-weight:700}
+.tarif.total b + span{text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)}
 @media (prefers-reduced-motion: no-preference){.fill{transition:width .5s ease-out}}
 </style>
 
@@ -371,6 +376,20 @@ function coutsFacture(f){
   return {lignes, total: lignes.reduce((t, l) => t + l.total, 0)};
 }
 
+// transport ramené au kilo, puis le total de toutes les dépenses au kilo, sur les factures affichées
+function tuilesKilo(parPoste, dep, net){
+  const trans = parPoste.filter(x => x.p.bareme), tTot = trans.reduce((t,x) => t + x.total, 0);
+  const tuile = (cls, c, label, valeur, note) => {
+    const d = el("div",{className:"tarif " + cls},[el("span",{textContent:label}), el("b",{textContent:valeur}), ...(note ? [el("span",{textContent:note})] : [])]);
+    d.style.setProperty("--c", `var(${c})`);
+    return d;
+  };
+  return [tuile(tTot ? "" : "vide", "--k-trans", "Frais de transport au kilo", net && tTot ? dhs(tTot/net) + " DH/kg" : "à renseigner",
+      trans.some(x => x.exemple) ? "exemple, à confirmer" : ""),
+    tuile("total", "--k-dep", "Coût total des frais au kilo", net ? dhs(dep/net) + " DH/kg" : "—",
+      net ? `${dh0(dep)} de dépenses ÷ ${ent.format(net)} kg nets` : "")];
+}
+
 function depenses(){
   const F = D.factures.filter(f => !filtreSoc || f.societe === filtreSoc);
   const taux = D.cours ? D.cours.taux : null;
@@ -469,7 +488,7 @@ function depenses(){
       el("b",{textContent: v == null ? "à renseigner" : dhs(v) + unite}), ...(p.exemple ? [el("span",{textContent:"exemple, à confirmer"})] : [])]);
     d.style.setProperty("--c", `var(${FAMILLES[famille(p)][1]})`);
     return d;
-  }));
+  }), ...tuilesKilo(parPoste, dep, net));
 
   // barème transport : une ligne par destination, route et conteneur
   const unite = {envoi:"envoi", palette:"palette", kg:"kg net"};
