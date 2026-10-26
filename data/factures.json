@@ -611,7 +611,152 @@
             "dh": 0.8
           }
         ]
+      },
+      {
+        "id": "transport",
+        "libelle": "Transport",
+        "famille": "transport",
+        "bareme": true
+      },
+      {
+        "id": "export",
+        "libelle": "Frais d'export",
+        "base": "envoi",
+        "famille": "transport",
+        "par": 1,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": null
+          }
+        ]
       }
-    ]
+    ],
+    "transport": {
+      "attendu": "rendez-vous avec Reda le jeudi 29/10/2026 à 11h",
+      "_note": "Une ligne par pays × mode (route ou conteneur). base = envoi (le camion ou le conteneur de la facture), palette ou kg ; devise DH ou EUR (convertie au cours du moment). Le mode d'une facture est « route », sauf champ transport_mode ou conteneur sur la facture.",
+      "lignes": [
+        {
+          "pays": "FRANCE",
+          "mode": "route",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        },
+        {
+          "pays": "FRANCE",
+          "mode": "conteneur",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        },
+        {
+          "pays": "ESPAGNE",
+          "mode": "route",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        },
+        {
+          "pays": "ESPAGNE",
+          "mode": "conteneur",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        },
+        {
+          "pays": "ANGLETERRE",
+          "mode": "route",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        },
+        {
+          "pays": "ANGLETERRE",
+          "mode": "conteneur",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        },
+        {
+          "pays": "HOLLANDE",
+          "mode": "route",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        },
+        {
+          "pays": "HOLLANDE",
+          "mode": "conteneur",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        },
+        {
+          "pays": "ALLEMAGNE",
+          "mode": "route",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        },
+        {
+          "pays": "ALLEMAGNE",
+          "mode": "conteneur",
+          "base": "envoi",
+          "devise": "DH",
+          "prix": [
+            {
+              "depuis": "2026-10-10",
+              "dh": null
+            }
+          ]
+        }
+      ]
+    }
   }
 }

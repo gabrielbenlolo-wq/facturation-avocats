@@ -36,6 +36,7 @@ def facture_pour_site(f):
         "transporteur": f.get("transporteur"), "whatsapp_par": f.get("whatsapp_par"),
         "whatsapp_le": f.get("whatsapp_le"), "pdf": f"{f.get('dossier', '')}/{f['pdf']}",
         "remarques": f.get("remarques"), "colis_par_calibre": dict(calibres),
+        "transport_mode": f.get("transport_mode") or ("conteneur" if f.get("conteneur") else "route"),
     }
 
 
