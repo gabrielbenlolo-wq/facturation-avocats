@@ -136,6 +136,9 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
 .tarif span{font-size:.75rem;color:var(--muted)}
 .tarif b{font-family:var(--f-display);font-size:1.12rem;font-variant-numeric:tabular-nums}
 .tarif.vide b{color:var(--warn);font-family:var(--f-body);font-size:.9rem}
+.onglet-detail{font-size:.85rem;padding:5px 14px;border-radius:999px}
+.onglet-detail[aria-expanded="true"]{background:var(--fg);border-color:var(--fg);color:var(--panel)}
+.tarifs:not(.ouvert) .tarif:not(.total){display:none}
 /* total des frais au kilo : toute la largeur, en gros */
 .tarif.total{grid-column:1/-1;border-left-width:8px;background:color-mix(in srgb,var(--c) 14%,var(--panel));padding:12px 16px}
 .tarif.total span{font-size:.85rem;font-weight:600;color:var(--c);text-transform:uppercase;letter-spacing:.06em}
@@ -196,7 +199,9 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
         <tbody id="dep-factures"></tbody>
       </table></div>
     </div>
-    <div class="card"><h2>Prix d'achat</h2>
+    <div class="card">
+      <div class="dep-head"><h2>Prix d'achat</h2>
+        <button type="button" class="onglet-detail" id="dep-tarifs-btn" aria-expanded="false" aria-controls="dep-tarifs">Voir le détail</button></div>
       <div class="tarifs" id="dep-tarifs"></div>
       <p class="muted" style="font-size:.82rem;margin:0">Prix donnés par Gabriel. Quand un prix change, les factures déjà passées gardent l'ancien.</p>
     </div>
@@ -389,6 +394,21 @@ function tuilesKilo(parPoste, dep, net){
     tuile("total", "--k-dep", "Coût total des frais au kilo", net ? dhs(dep/net) + " DH/kg" : "—",
       net ? `${dh0(dep)} de dépenses ÷ ${ent.format(net)} kg nets` : "")];
 }
+
+// le détail des prix est replié par défaut : seul le coût total au kilo reste visible
+let detailPrix = false;
+try { detailPrix = localStorage.getItem("detailPrix") === "1"; } catch (e) {}
+function montrerDetailPrix(){
+  $("dep-tarifs").classList.toggle("ouvert", detailPrix);
+  $("dep-tarifs-btn").setAttribute("aria-expanded", String(detailPrix));
+  $("dep-tarifs-btn").textContent = detailPrix ? "Masquer le détail" : "Voir le détail";
+}
+$("dep-tarifs-btn").onclick = () => {
+  detailPrix = !detailPrix;
+  try { localStorage.setItem("detailPrix", detailPrix ? "1" : "0"); } catch (e) {}
+  montrerDetailPrix();
+};
+montrerDetailPrix();
 
 function depenses(){
   const F = D.factures.filter(f => !filtreSoc || f.societe === filtreSoc);
