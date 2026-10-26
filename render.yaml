@@ -1,0 +1,18 @@
+# Plan Render : un service web Python, republié à chaque envoi sur GitHub.
+services:
+  - type: web
+    name: facturation-avocats
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    healthCheckPath: /sante
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: SITE_PASSWORD
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

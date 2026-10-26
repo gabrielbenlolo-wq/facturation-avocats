@@ -1,0 +1,513 @@
+{
+  "societes": {
+    "NEW GREEN": {
+      "raison_sociale": "NEW GREEN (Newgreen Import Export)",
+      "adresse": "Douar Oled Aassem Kariat Ben Aouda N 1, Souk El Arbaa du Gharb - Maroc",
+      "ice": "000525730000076",
+      "rc": "25479",
+      "if": "14479513",
+      "tp": "21980163",
+      "n_export": "6944",
+      "bp": "232",
+      "banque": "CRÉDIT AGRICOLE - Agence Larache",
+      "compte": "225735068100056651011290",
+      "swift": "CNCAMAMR",
+      "ggn": "4063651449167",
+      "coc": "4063651462425",
+      "certification": "GLOBALG.A.P",
+      "station": "NEW GREEN - Souk El Arbaa"
+    }
+  },
+  "clients": {
+    "WESTFALIA MARKETING BV": {
+      "adresse": "Honderdland 260, 2676 LV Maasdijk",
+      "pays": "PAYS-BAS"
+    }
+  },
+  "objectifs_clients": [
+    [
+      "MEHADRIN FRANCE",
+      4500
+    ],
+    [
+      "MEHADRIN UK",
+      3000
+    ],
+    [
+      "MEHADRIN NL",
+      3000
+    ],
+    [
+      "OGL PAR MEHADRIN NL",
+      1500
+    ],
+    [
+      "HALLS FRANCE",
+      1500
+    ],
+    [
+      "DOLE",
+      2500
+    ],
+    [
+      "DIMAPEX",
+      3000
+    ],
+    [
+      "FRUITS EXPORTER VITAL",
+      3000
+    ],
+    [
+      "CULTIPALTA",
+      3000
+    ],
+    [
+      "MONTOSA CAT1",
+      1500
+    ],
+    [
+      "TROPICAL MILLENIUM",
+      1500
+    ],
+    [
+      "CAPEXO",
+      1500
+    ],
+    [
+      "WESTFALIA",
+      5000
+    ],
+    [
+      "BONO",
+      2500
+    ],
+    [
+      "FRUTITAL",
+      400
+    ],
+    [
+      "FRESH IMPORT",
+      600
+    ],
+    [
+      "SOLY IMPORT",
+      1000
+    ],
+    [
+      "HELFER",
+      null
+    ]
+  ],
+  "alias_clients": {
+    "WESTFALIA MARKETING BV": "WESTFALIA"
+  },
+  "factures": [
+    {
+      "numero": "282 NG/2026",
+      "date": "2026-10-15",
+      "societe": "NEW GREEN",
+      "station": "NEW GREEN - Souk El Arbaa",
+      "client": "WESTFALIA MARKETING BV",
+      "destination": "PAYS-BAS",
+      "incoterm": "DAP (THE NETHERLANDS)",
+      "produit": "AVOCAT",
+      "designation": "AVOCATS FRAIS Calibre 12-18",
+      "variete": "ZUTANO",
+      "emballage": "CARTONS DE 4 KGS",
+      "kg_colis": 4,
+      "lot": "03-03428 NG-01A",
+      "palettes_facture": 24,
+      "colis_facture": 5280,
+      "brut_facture": 22776,
+      "net_facture": 21120,
+      "prix_unit": 8.5,
+      "devise": "EUR",
+      "montant_facture": 44880.0,
+      "montant_lettres": "Quarante quatre mille huit cent quatre vingts euros",
+      "paiement": "50% au chargement, 50% à la réception",
+      "matricule": "R2464BCV",
+      "transporteur": "LAIRAMANA ROAD",
+      "whatsapp_par": "Rajae Newgreen",
+      "whatsapp_le": "2026-10-15 15:46",
+      "whatsapp_msg": "Variété ZUTANO",
+      "pdf": "FACTURE ET LC N° 282 NG-2026 PDF WESTFALIA NL.pdf",
+      "saisie_le": "2026-10-25",
+      "remarques": "Date du message WhatsApp déduite (avant le séparateur « ven. 16 oct. »).",
+      "palettes": [
+        [
+          "28201",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28202",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28203",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28204",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28205",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28206",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28207",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28208",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28209",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28210",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28211",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28212",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28213",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28214",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28215",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28216",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28217",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28218",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28219",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28220",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28221",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28222",
+          "16",
+          220,
+          949,
+          880
+        ],
+        [
+          "28223",
+          "16",
+          220,
+          949,
+          880
+        ],
+        [
+          "28224",
+          "18",
+          220,
+          949,
+          880
+        ]
+      ],
+      "dossier": "WESTFALIA"
+    },
+    {
+      "numero": "283 NG/2026",
+      "date": "2026-10-16",
+      "societe": "NEW GREEN",
+      "station": "NEW GREEN - Souk El Arbaa",
+      "client": "WESTFALIA MARKETING BV",
+      "destination": "PAYS-BAS",
+      "incoterm": "DAP (THE NETHERLANDS)",
+      "produit": "AVOCAT",
+      "designation": "AVOCATS FRAIS Calibre 12-14-16",
+      "variete": "ZUTANO",
+      "emballage": "CARTONS DE 4 KGS",
+      "kg_colis": 4,
+      "lot": "03-04428NG-01A",
+      "palettes_facture": 24,
+      "colis_facture": 5280,
+      "brut_facture": 22776,
+      "net_facture": 21120,
+      "prix_unit": 8.5,
+      "devise": "EUR",
+      "montant_facture": 44880.0,
+      "montant_lettres": "Quarante quatre mille huit cent quatre vingts euros",
+      "paiement": "50% au chargement, 50% à la réception",
+      "matricule": "R5234BDS",
+      "transporteur": "LAIRAMANA ROAD",
+      "whatsapp_par": "Rajae Newgreen",
+      "whatsapp_le": "2026-10-16 17:10",
+      "whatsapp_msg": "VARIETE ZUTANO",
+      "pdf": "FACTURE ET LC N°283 NG-2026 WESTFALIA PDF.pdf",
+      "saisie_le": "2026-10-25",
+      "remarques": "Palette 28324 en calibre mixte 14-16 (répartition non précisée).",
+      "palettes": [
+        [
+          "28301",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28302",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28303",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28304",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28305",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28306",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28307",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28308",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28309",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28310",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28311",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28312",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28313",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28314",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28315",
+          "12",
+          220,
+          949,
+          880
+        ],
+        [
+          "28316",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28317",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28318",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28319",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28320",
+          "14",
+          220,
+          949,
+          880
+        ],
+        [
+          "28321",
+          "16",
+          220,
+          949,
+          880
+        ],
+        [
+          "28322",
+          "16",
+          220,
+          949,
+          880
+        ],
+        [
+          "28323",
+          "16",
+          220,
+          949,
+          880
+        ],
+        [
+          "28324",
+          "14-16",
+          220,
+          949,
+          880
+        ]
+      ],
+      "dossier": "WESTFALIA"
+    }
+  ],
+  "a_completer": []
+}

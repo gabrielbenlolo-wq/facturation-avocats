@@ -1,0 +1,324 @@
+<title>Facturation Avocats 26-27</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Spectral:wght@500;600&display=swap">
+<style>
+/* Mise en page : une colonne de lecture large ; question à Claude en tête, puis chiffres, répartitions, registre des factures. */
+:root{
+  --bg:#F4F6F0; --panel:#FFFFFF; --fg:#1C261D; --muted:#5B685C; --line:#DCE2D4;
+  --accent:#3E6A2B; --accent-soft:#E3ECD6; --flesh:#C7D86A;
+  --ng:#4E8A34; --gf:#2F6FB0; --vf:#7A4DB3; --ad:#C46A1E; --gan:#B8344A; --autre:#7B807A;
+  --ok:#2E7D32; --warn:#A6620B;
+  --f-display:"Spectral", Georgia, "Times New Roman", serif;
+  --f-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111711; --panel:#192119; --fg:#E5ECE1; --muted:#9BA897; --line:#2C372B;
+  --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
+  --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
+  --ok:#7BC47F; --warn:#E3A250; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#111711; --panel:#192119; --fg:#E5ECE1; --muted:#9BA897; --line:#2C372B;
+  --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
+  --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
+  --ok:#7BC47F; --warn:#E3A250; color-scheme:dark }
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.page{max-width:1180px;margin-inline:auto;padding-block:28px 56px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+  display:grid;gap:28px}
+h1,h2{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.7rem,3.6vw,2.4rem);letter-spacing:-.01em}
+h2{font-size:1.25rem}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+header{display:grid;gap:6px}
+header .sub{color:var(--muted);font-size:.92rem}
+
+/* Question */
+.ask{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px}
+.ask-row{display:flex;gap:10px;flex-wrap:wrap}
+.ask textarea{flex:1 1 320px;min-width:0;min-height:52px;resize:vertical;font:inherit;color:var(--fg);background:var(--bg);
+  border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.ask textarea:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:8px 14px}
+.btn-main{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.btn-main:disabled{opacity:.55;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.85rem;padding:5px 11px;border-radius:999px;background:var(--accent-soft);border-color:transparent}
+.thread{display:grid;gap:12px}
+.msg{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px 14px;border-radius:8px;min-width:0}
+.msg.q{background:var(--accent-soft);font-weight:500}
+.msg.a{border:1px solid var(--line)}
+.msg.err{border:1px solid var(--warn);color:var(--warn)}
+.ask-off{font-size:.9rem;color:var(--muted)}
+
+/* Chiffres */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.kpi{background:var(--panel);padding:14px 16px;display:grid;gap:2px}
+.kpi b{font-family:var(--f-display);font-weight:500;font-size:1.6rem;font-variant-numeric:tabular-nums}
+
+/* Sociétés */
+.socs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px}
+.soc{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:var(--r);padding:12px 14px;
+  display:grid;gap:4px;text-align:left}
+.soc[aria-pressed="true"]{background:color-mix(in srgb,var(--c) 14%,var(--panel))}
+.soc .nom{font-weight:700;font-size:.85rem;letter-spacing:.04em;color:var(--c)}
+.soc .ca{font-family:var(--f-display);font-size:1.3rem;font-variant-numeric:tabular-nums}
+.soc.vide .ca{color:var(--muted)}
+
+/* Répartitions */
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:10px;min-width:0}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:minmax(80px,30%) 1fr auto;gap:10px;align-items:center;font-size:.9rem}
+.bar .track{height:12px;background:var(--accent-soft);border-radius:6px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:6px}
+.bar .lab{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Registre */
+.reg-head{display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:space-between}
+.reg-head input{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;
+  min-width:0;flex:0 1 280px}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;background:var(--panel);position:sticky;top:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr{box-shadow:inset 4px 0 0 var(--c)}
+tbody tr:hover{background:color-mix(in srgb,var(--c) 8%,var(--panel))}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;color:var(--c)}
+.pdf{color:var(--muted);font-size:.8rem;max-width:320px;overflow:hidden;text-overflow:ellipsis}
+.empty{padding:18px;color:var(--muted)}
+footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
+@media (prefers-reduced-motion: no-preference){.fill{transition:width .5s ease-out}}
+</style>
+
+<div class="page">
+  <header>
+    <span class="eyebrow">Campagne avocats 2026-2027 · groupe WhatsApp « Facturation Avocats »</span>
+    <h1>Facturation Avocats 26-27</h1>
+    <p class="sub" id="maj"></p>
+  </header>
+
+  <section class="ask" id="ask" aria-labelledby="ask-t">
+    <h2 id="ask-t">Pose ta question</h2>
+    <div class="thread" id="thread"></div>
+    <div class="ask-row">
+      <label for="q" class="eyebrow" hidden>Question</label>
+      <textarea id="q" placeholder="Ex. : Combien a-t-on facturé à Westfalia en calibre 12 ?"></textarea>
+      <div style="display:flex;gap:8px;align-items:start">
+        <button class="btn-main" id="go">Demander</button>
+        <button id="stop" hidden>Arrêter</button>
+      </div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <p class="ask-off" id="ask-off" hidden>Les questions à Claude ne sont pas disponibles dans cette fenêtre. Ouvre la page sur claude.ai, connecté à ton compte.</p>
+  </section>
+
+  <section class="kpis" id="kpis" aria-label="Chiffres clés"></section>
+
+  <section aria-labelledby="soc-t" style="display:grid;gap:12px">
+    <h2 id="soc-t">Par société</h2>
+    <div class="socs" id="socs"></div>
+  </section>
+
+  <section class="duo">
+    <div class="card"><h2>Par client</h2><div class="bars" id="clients"></div></div>
+    <div class="card"><h2>Colis par calibre</h2><div class="bars" id="calibres"></div></div>
+  </section>
+
+  <section aria-labelledby="reg-t" style="display:grid;gap:12px">
+    <div class="reg-head">
+      <div><h2 id="reg-t">Registre des factures</h2><span class="muted" id="reg-n"></span></div>
+      <input id="search" type="search" placeholder="Chercher : client, lot, camion, variété…" aria-label="Chercher une facture">
+    </div>
+    <div class="scroll"><table>
+      <thead><tr>
+        <th>N° facture</th><th>Date</th><th>Société</th><th>Client</th><th>Variété</th><th>Calibres</th>
+        <th class="n">Palettes</th><th class="n">Colis</th><th class="n">Net (kg)</th><th class="n">€ / colis</th>
+        <th class="n">€ / kg</th><th class="n">Montant</th><th>Camion</th><th>PDF</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+  </section>
+
+  <section id="todo-s" hidden style="display:grid;gap:10px">
+    <h2>Factures à compléter</h2>
+    <p class="muted">Rangées dans leur dossier mais pas encore lues (modèle de facture inconnu).</p>
+    <div class="scroll"><table><thead><tr><th>PDF</th><th>Posté par</th><th>Reçu le</th></tr></thead><tbody id="todo"></tbody></table></div>
+  </section>
+
+  <footer>
+    <span>Source : PDF postés dans le groupe WhatsApp, rangés dans OneDrive › 1.GABRIEL › 2.CAMPAGNE 2026.2027 › FACTURATION.</span>
+    <span id="maj-mode">Page mise à jour par Claude à ta demande (« mets à jour le site »).</span>
+  </footer>
+</div>
+
+<script>
+const MODE_LOCAL = /*__MODE_LOCAL__*/false;
+const D = /*__DONNEES__*/null;
+const COUL = {"NEW GREEN":"--ng","GLOBAL FARMING":"--gf","VITAL FROZEN":"--vf","ADOLAM":"--ad","GAN FRUITS":"--gan"};
+const coul = s => `var(${COUL[s] || "--autre"})`;
+const eur = new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"});
+const ent = new Intl.NumberFormat("fr-FR");
+const ekg = v => new Intl.NumberFormat("fr-FR",{minimumFractionDigits:3,maximumFractionDigits:3}).format(v) + " €/kg";
+const dfr = s => s.split("-").reverse().join("/");
+const $ = id => document.getElementById(id);
+const el = (tag, props = {}, kids = []) => { const e = document.createElement(tag); Object.assign(e, props); e.append(...kids); return e; };
+const sum = (a, k) => a.reduce((t, x) => t + (x[k] || 0), 0);
+
+let filtreSoc = null;
+
+$("maj").textContent = `Données au ${D.mis_a_jour} · ${D.factures.length} facture(s)`;
+if (MODE_LOCAL) $("maj-mode").textContent = "Site mis à jour automatiquement à chaque facture relevée sur WhatsApp (recharge la page).";
+
+function kpis(){
+  const F = D.factures, ca = sum(F,"montant"), net = sum(F,"net");
+  const items = [["CA facturé", eur.format(ca)], ["Factures", ent.format(F.length)], ["Palettes", ent.format(sum(F,"palettes"))],
+    ["Colis", ent.format(sum(F,"colis"))], ["Poids net", ent.format(net) + " kg"], ["Prix moyen", net ? ekg(ca/net) : "—"]];
+  $("kpis").replaceChildren(...items.map(([l,v]) => el("div",{className:"kpi"},[el("span",{className:"eyebrow",textContent:l}), el("b",{textContent:v})])));
+}
+
+function societes(){
+  $("socs").replaceChildren(...D.societes.map(s => {
+    const F = D.factures.filter(f => f.societe === s), ca = sum(F,"montant");
+    const b = el("button",{className:"soc" + (F.length ? "" : " vide"), type:"button"},[
+      el("span",{className:"nom",textContent:s}),
+      el("span",{className:"ca",textContent:eur.format(ca)}),
+      el("span",{className:"muted",textContent:F.length ? `${F.length} facture(s) · ${ent.format(sum(F,"palettes"))} palettes` : "Aucune facture pour l'instant"})]);
+    b.style.setProperty("--c", coul(s));
+    b.setAttribute("aria-pressed", String(filtreSoc === s));
+    b.title = "Filtrer le registre sur " + s;
+    b.onclick = () => { filtreSoc = filtreSoc === s ? null : s; societes(); registre(); };
+    return b;
+  }));
+}
+
+function barres(cible, paires, fmt){
+  const max = Math.max(1, ...paires.map(p => p[1]));
+  cible.replaceChildren(...(paires.length ? paires.map(([k,v]) => el("div",{className:"bar"},[
+    el("span",{className:"lab",textContent:k,title:k}),
+    el("div",{className:"track"},[Object.assign(el("div",{className:"fill"}),{style:`width:${(v/max*100).toFixed(1)}%`})]),
+    el("span",{className:"num",textContent:fmt(v)})])) : [el("p",{className:"muted",textContent:"Aucune donnée."})]));
+}
+
+function repartitions(){
+  const parClient = {};
+  D.factures.forEach(f => parClient[f.groupe] = (parClient[f.groupe] || 0) + f.montant);
+  barres($("clients"), Object.entries(parClient).sort((a,b) => b[1]-a[1]), v => eur.format(v));
+  const cal = {};
+  D.factures.forEach(f => Object.entries(f.colis_par_calibre).forEach(([c,n]) => cal[c] = (cal[c] || 0) + n));
+  const tot = Object.values(cal).reduce((a,b) => a+b, 0) || 1;
+  const ordre = k => parseFloat(k) + (k.includes("-") ? .5 : 0);
+  barres($("calibres"), Object.entries(cal).sort((a,b) => ordre(a[0]) - ordre(b[0])).map(([k,v]) => ["Calibre " + k, v]),
+    v => `${ent.format(v)} · ${Math.round(v/tot*100)} %`);
+}
+
+function registre(){
+  const q = $("search").value.trim().toLowerCase();
+  const F = D.factures.filter(f => (!filtreSoc || f.societe === filtreSoc) &&
+    (!q || JSON.stringify(f).toLowerCase().includes(q))).slice().reverse();
+  $("reg-n").textContent = `${F.length} facture(s)` + (filtreSoc ? ` · ${filtreSoc}` : "") + (q ? ` · « ${$("search").value.trim()} »` : "");
+  if (!F.length){ $("rows").replaceChildren(el("tr",{},[el("td",{colSpan:14,className:"empty",textContent:"Aucune facture ne correspond."})])); return; }
+  $("rows").replaceChildren(...F.map(f => {
+    const td = (t, cls = "") => el("td",{className:cls,textContent:t});
+    const tag = el("span",{className:"tag",textContent:f.societe});
+    const tr = el("tr",{},[td(f.numero), td(dfr(f.date)), el("td",{},[tag]), td(f.groupe), td(f.variete),
+      td(Object.keys(f.colis_par_calibre).join(", ")), td(ent.format(f.palettes),"n"), td(ent.format(f.colis),"n"),
+      td(ent.format(f.net),"n"), td(eur.format(f.prix_unit),"n"), td(f.net ? ekg(f.montant/f.net) : "—","n"),
+      td(eur.format(f.montant),"n"), td(f.matricule || "—"), Object.assign(td(f.pdf,"pdf"),{title:f.pdf})]);
+    tr.style.setProperty("--c", coul(f.societe));
+    return tr;
+  }));
+}
+
+function aCompleter(){
+  if (!D.a_completer.length) return;
+  $("todo-s").hidden = false;
+  $("todo").replaceChildren(...D.a_completer.map(a => el("tr",{},[el("td",{textContent:`${a.dossier}/${a.pdf}`}),
+    el("td",{textContent:a.whatsapp_par || "—"}), el("td",{textContent:a.whatsapp_le || "—"})])));
+}
+
+kpis(); societes(); repartitions(); registre(); aCompleter();
+$("search").addEventListener("input", registre);
+
+/* ---- Questions à Claude ---- */
+const SUGG = ["Quel est le CA total par société et par client ?", "Quel prix moyen au kilo pour Westfalia ?",
+  "Quelle part du volume en calibre 12 ?", "Liste les factures de la semaine dernière", "Quels camions ont chargé pour Westfalia ?"];
+const REGLES = `Tu es l'assistant de Gabriel pour le suivi de la facturation des avocats (campagne 2026-2027).
+Réponds en français, simplement et précisément, uniquement à partir des données JSON ci-dessous (factures émises par ses sociétés : NEW GREEN, GLOBAL FARMING, VITAL FROZEN, ADOLAM, GAN FRUITS).
+- Cite les numéros de facture concernés et fais les calculs toi-même (totaux, moyennes, parts) en montrant le résultat.
+- « prix_unit » est le prix par colis ; « kg_colis » le poids d'un colis ; « net »/« brut » en kg ; « montant » en euros.
+- « colis_par_calibre » donne le nombre de colis par calibre ; « 14-16 » est une palette mixte.
+- Si l'information n'est pas dans les données, dis-le clairement et ne l'invente pas.
+- Pas de tableaux Markdown ni de titres ; des phrases courtes ou des listes à tirets. Montants au format français (44 880,00 €).
+Date du jour : ${new Date().toLocaleDateString("fr-FR")}.
+DONNÉES :
+${JSON.stringify({mis_a_jour:D.mis_a_jour, factures:D.factures, a_completer:D.a_completer, objectifs_clients_unite_non_precisee:D.objectifs_clients, societes:D.referentiel_societes})}`;
+
+let tours = [], ctl = null, sample = null;
+const thread = $("thread");
+$("chips").replaceChildren(...SUGG.map(s => { const b = el("button",{className:"chip",type:"button",textContent:s}); b.onclick = () => { $("q").value = s; demander(); }; return b; }));
+
+function messageErreur(code){
+  return ({not_granted:"Tu n'as pas autorisé la page à interroger Claude.", rate_limited:"Trop de questions d'un coup : réessaie dans un moment.",
+    session_expired:"Reconnecte-toi à claude.ai puis réessaie.", sampling_disabled:"Claude n'est pas disponible pour ce compte.",
+    prompt_too_large:"Trop de données pour une seule question : demande sur une période plus courte.",
+    not_logged:"La clé API Anthropic du site est refusée : vérifie-la dans les réglages Render (Environment).",
+    no_key:"Les questions ne sont pas encore activées : ajoute la clé API Anthropic dans les réglages Render (Environment).",
+    refused:"Claude a refusé de répondre à cette question : reformule-la.",
+    busy:"Une autre question est en cours : attends sa réponse puis réessaie."})[code]
+    || "La réponse n'a pas pu aboutir. Réessaie.";
+}
+
+async function demander(){
+  const question = $("q").value.trim();
+  if (!question || ctl || !sample) return;
+  $("q").value = "";
+  thread.append(el("div",{className:"msg q",textContent:question}));
+  const rep = el("div",{className:"msg a",textContent:"Je regarde les factures…"});
+  thread.append(rep);
+  tours.push({role:"user", content:question});
+  ctl = new AbortController();
+  $("go").disabled = true; $("stop").hidden = false;
+  try {
+    const { text } = await sample([{role:"user", content:REGLES}, ...tours.slice(-8)],
+      { cache:false, signal:ctl.signal, onText: ({text}) => { rep.textContent = text; } });
+    tours.push({role:"assistant", content:text});
+  } catch (e) {
+    rep.textContent = e.text || "";
+    if (e.code !== "cancelled") { rep.className = "msg err"; rep.textContent = (e.text ? e.text + "\n\n" : "") + messageErreur(e.code); }
+    if (["not_granted","sampling_disabled","not_declared","capability_disabled"].includes(e.code)) desactiver();
+    tours.pop();
+  } finally {
+    ctl = null; $("go").disabled = false; $("stop").hidden = true;
+  }
+}
+
+function desactiver(){ $("go").disabled = true; $("q").disabled = true; $("chips").hidden = true; $("ask-off").hidden = false; }
+
+$("go").onclick = demander;
+$("stop").onclick = () => ctl?.abort();
+$("q").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); demander(); } });
+
+/* Sur le Mac, la question part au serveur local, qui interroge Claude Code avec l'abonnement de Gabriel. */
+async function sampleLocal(turns, { signal, onText }){
+  let r;
+  try {
+    r = await fetch("api/question", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({turns}), signal });
+  } catch (e) { throw { code: signal?.aborted ? "cancelled" : "upstream_error" }; }
+  const rep = await r.json().catch(() => ({}));
+  if (!r.ok) throw { code: rep.code || "upstream_error" };
+  onText({ text: rep.text, delta: rep.text });
+  return { text: rep.text };
+}
+
+(async () => {
+  if (MODE_LOCAL) { sample = sampleLocal; return; }
+  sample = window.claude ? await window.claude.use("sample").catch(() => null) : null;
+  if (!sample) desactiver();
+})();
+</script>
