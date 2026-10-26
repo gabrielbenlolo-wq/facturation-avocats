@@ -139,7 +139,10 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
 .onglet-detail{font-size:.85rem;padding:5px 14px;border-radius:999px}
 .onglet-detail[aria-expanded="true"]{background:var(--fg);border-color:var(--fg);color:var(--panel)}
 .tarifs:not(.ouvert) .tarif:not(.total){display:none}
-#dep-bareme-bloc:not(.ouvert){display:none !important}
+#dep-bareme-bloc:not(.ouvert),#dep-detail-bloc:not(.ouvert){display:none !important}
+.leg-dep{display:grid;gap:6px;font-size:.92rem;font-variant-numeric:tabular-nums}
+.leg-dep div{display:flex;justify-content:space-between;gap:10px;padding-left:10px;border-left:4px solid var(--c)}
+.leg-dep div.tot{border-left-color:var(--k-dep);font-weight:700;font-size:1.02rem;padding-top:4px}
 /* total des frais au kilo : toute la largeur, en gros */
 .tarif.total{grid-column:1/-1;border-left-width:8px;background:color-mix(in srgb,var(--c) 14%,var(--panel));padding:12px 16px}
 .tarif.total span{font-size:.85rem;font-weight:600;color:var(--c);text-transform:uppercase;letter-spacing:.06em}
@@ -181,8 +184,11 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
     <div class="alerte" id="dep-manque" hidden></div>
     <div class="gros" id="dep-gros"></div>
     <div class="dep-duo">
-      <div class="card"><h2>Détail des dépenses</h2>
-        <div class="scroll"><table>
+      <div class="card">
+        <div class="dep-head"><h2>Détail des dépenses</h2>
+          <button type="button" class="onglet-detail" id="dep-detail-btn" aria-expanded="false" aria-controls="dep-detail-bloc">Voir le détail</button></div>
+        <div class="leg-dep" id="dep-detail-resume"></div>
+        <div class="scroll" id="dep-detail-bloc"><table>
           <thead><tr><th>Poste</th><th>Calcul</th><th class="n">Quantité</th><th class="n">Prix unitaire</th><th class="n">Total</th></tr></thead>
           <tbody id="dep-detail"></tbody>
         </table></div>
@@ -414,6 +420,7 @@ function repliable(bouton, bloc, cle, voir, masquer){
   montrer();
 }
 repliable("dep-tarifs-btn", "dep-tarifs", "detailPrix", "Voir le détail", "Masquer le détail");
+repliable("dep-detail-btn", "dep-detail-bloc", "detailDepenses", "Voir le détail", "Masquer le détail");
 repliable("dep-bareme-btn", "dep-bareme-bloc", "detailBareme", "Voir le barème", "Masquer le barème");
 
 function depenses(){
@@ -478,6 +485,13 @@ function depenses(){
   });
   rangs.push(el("tr",{className:"tot"},[td("Total dépenses"), td(""), td(""), td(""), td(dh0(dep),"n")]));
   $("dep-detail").replaceChildren(...rangs);
+  // résumé visible quand le détail est replié : une ligne par famille, puis le total
+  $("dep-detail-resume").replaceChildren(...Object.entries(FAMILLES).map(([f,[titre,c]]) => {
+    const v = parPoste.filter(x => famille(x.p) === f).reduce((t,x) => t + x.total, 0);
+    const d = el("div",{},[el("span",{textContent:titre}), el("span",{textContent:dh0(v) + (net ? ` · ${dhs(v/net)} DH/kg` : "")})]);
+    d.style.setProperty("--c", `var(${c})`);
+    return d;
+  }), el("div",{className:"tot"},[el("span",{textContent:"Total dépenses"}), el("span",{textContent:dh0(dep) + (net ? ` · ${dhs(dep/net)} DH/kg` : "")})]));
 
   // sur 1 kg : prix de vente, chaque famille de dépenses, ce qui reste
   const fam = Object.entries(FAMILLES).map(([f,[titre,c]]) => [titre, c, parPoste.filter(x => famille(x.p) === f).reduce((t,x) => t + x.total, 0)]);
