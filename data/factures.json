@@ -533,31 +533,31 @@
         "prix": [
           {
             "depuis": "2026-10-10",
-            "dh": null
+            "dh": 6.0
           }
         ]
       },
       {
         "id": "cerclage",
-        "libelle": "Cerclage",
+        "libelle": "Feuillard",
         "base": "palette",
         "par": 1,
         "prix": [
           {
             "depuis": "2026-10-10",
-            "dh": null
+            "dh": 38.0
           }
         ]
       },
       {
-        "id": "carte",
-        "libelle": "Carte palette",
+        "id": "chapeau",
+        "libelle": "Chapeau",
         "base": "palette",
         "par": 1,
         "prix": [
           {
             "depuis": "2026-10-10",
-            "dh": null
+            "dh": 24.0
           }
         ]
       },
@@ -569,7 +569,7 @@
         "prix": [
           {
             "depuis": "2026-10-10",
-            "dh": null
+            "dh": 4.7
           }
         ]
       },
