@@ -509,5 +509,94 @@
       "dossier": "WESTFALIA"
     }
   ],
-  "a_completer": []
+  "a_completer": [],
+  "tarifs": {
+    "_note": "Prix d'achat en DH HT. base = palette, colis ou kg (poids net facturé) ; par = quantité par base. Un changement de prix = nouvelle ligne {depuis, dh} : les factures plus anciennes gardent l'ancien prix. dh null = prix à renseigner.",
+    "postes": [
+      {
+        "id": "palette",
+        "libelle": "Palette en bois",
+        "base": "palette",
+        "par": 1,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": 130.0
+          }
+        ]
+      },
+      {
+        "id": "corniere",
+        "libelle": "Cornières",
+        "base": "palette",
+        "par": 4,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": null
+          }
+        ]
+      },
+      {
+        "id": "cerclage",
+        "libelle": "Cerclage",
+        "base": "palette",
+        "par": 1,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": null
+          }
+        ]
+      },
+      {
+        "id": "carte",
+        "libelle": "Carte palette",
+        "base": "palette",
+        "par": 1,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": null
+          }
+        ]
+      },
+      {
+        "id": "carton",
+        "libelle": "Carton 4 kg",
+        "base": "colis",
+        "par": 1,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": null
+          }
+        ]
+      },
+      {
+        "id": "etiquette",
+        "libelle": "Étiquette thermique",
+        "base": "colis",
+        "par": 1,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": null
+          }
+        ]
+      },
+      {
+        "id": "station",
+        "libelle": "Station (emballage)",
+        "base": "kg",
+        "par": 1,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": 0.8
+          }
+        ]
+      }
+    ]
+  }
 }

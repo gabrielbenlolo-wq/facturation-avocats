@@ -10,7 +10,7 @@
   --ng:#4E8A34; --gf:#2F6FB0; --vf:#7A4DB3; --ad:#C46A1E; --gan:#B8344A; --autre:#7B807A;
   --ok:#2E7D32; --warn:#A6620B;
   /* une couleur par chiffre clé ; l'euro et le dirham d'une même mesure partagent la sienne */
-  --k-ca:#0F766E; --k-fac:#475569; --k-pal:#8B5E34; --k-col:#A16207; --k-poids:#0E7490; --k-prix:#4338CA; --k-cours:#1F2937;
+  --k-ca:#0F766E; --k-fac:#475569; --k-pal:#8B5E34; --k-col:#A16207; --k-poids:#0E7490; --k-prix:#4338CA; --k-cours:#1F2937; --k-dep:#B45309; --k-res:#2E7D32; --k-part:#BE185D;
   --f-display:"Spectral", Georgia, "Times New Roman", serif;
   --f-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r:10px;
@@ -20,13 +20,13 @@
   --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
   --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
   --ok:#7BC47F; --warn:#E3A250;
-  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; color-scheme:dark }}
+  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#111711; --panel:#192119; --fg:#E5ECE1; --muted:#9BA897; --line:#2C372B;
   --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
   --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
   --ok:#7BC47F; --warn:#E3A250;
-  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; color-scheme:dark }
+  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; color-scheme:dark }
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .page{max-width:1180px;margin-inline:auto;padding-block:28px 56px;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
@@ -101,6 +101,39 @@ tbody tr:hover{background:color-mix(in srgb,var(--c) 8%,var(--panel))}
 .pdf{color:var(--muted);font-size:.8rem;max-width:320px;overflow:hidden;text-overflow:ellipsis}
 .empty{padding:18px;color:var(--muted)}
 footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
+/* Dépenses et résultat : trois familles de dépenses (palette, colis, kilo), une couleur chacune */
+.dep{display:grid;gap:16px}
+.dep-head{display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:space-between}
+.dep-head p{margin:2px 0 0;font-size:.9rem}
+.onglets{display:flex;flex-wrap:wrap;gap:6px}
+.onglets button{font-size:.82rem;padding:4px 12px;border-radius:999px;white-space:nowrap}
+.onglets button[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--panel)}
+.gros{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}
+.gros div{background:color-mix(in srgb,var(--k) 13%,var(--panel));border:1px solid var(--line);border-top:6px solid var(--k);
+  border-radius:var(--r);padding:14px 16px;display:grid;gap:3px;align-content:start}
+.gros .eyebrow{color:var(--k)}
+.gros b{font-family:var(--f-display);font-weight:600;font-size:clamp(1.5rem,3vw,1.9rem);font-variant-numeric:tabular-nums;line-height:1.15}
+.gros small{font-size:.8rem;color:var(--muted)}
+.alerte{background:color-mix(in srgb,var(--warn) 12%,var(--panel));border:1px solid var(--warn);border-radius:8px;padding:9px 12px;font-size:.88rem}
+.dep-duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:16px;align-items:start}
+.dep tbody tr{box-shadow:inset 4px 0 0 var(--c, transparent)}
+.dep tr.grp td{background:color-mix(in srgb,var(--c) 13%,var(--panel));color:var(--c);font-weight:700;font-size:.76rem;
+  letter-spacing:.05em;text-transform:uppercase}
+.dep tr.tot td{font-weight:700;border-top:2px solid var(--fg);border-bottom:none}
+.dep .pu{display:inline-block;min-width:72px;text-align:right;border:1px solid var(--line);border-radius:6px;padding:0 7px;
+  background:color-mix(in srgb,#F5C842 18%,var(--panel))}
+.dep .pu.vide{color:var(--warn);font-weight:600}
+.res{color:var(--k-res);font-weight:700}
+.pile{display:flex;height:40px;border-radius:8px;overflow:hidden}
+.pile div{display:grid;place-items:center;color:var(--panel);font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden}
+.flux{display:grid;grid-template-columns:auto 1fr auto;gap:7px 10px;align-items:center;font-size:.9rem;font-variant-numeric:tabular-nums}
+.flux .t{height:14px;border-radius:4px;min-width:2px}
+.flux .v{text-align:right;font-weight:600}
+.tarifs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:8px}
+.tarif{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:8px;padding:7px 10px;display:grid;gap:1px;background:var(--panel)}
+.tarif span{font-size:.75rem;color:var(--muted)}
+.tarif b{font-family:var(--f-display);font-size:1.12rem;font-variant-numeric:tabular-nums}
+.tarif.vide b{color:var(--warn);font-family:var(--f-body);font-size:.9rem}
 @media (prefers-reduced-motion: no-preference){.fill{transition:width .5s ease-out}}
 </style>
 
@@ -127,6 +160,40 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
   </section>
 
   <section class="kpis" id="kpis" aria-label="Chiffres clés"></section>
+
+  <section class="dep" aria-labelledby="dep-t">
+    <div class="dep-head">
+      <div><h2 id="dep-t">Dépenses et résultat</h2>
+        <p class="muted">Calculé à chaque facture : palettes, colis et kilos facturés × les prix d'achat ci-dessous (en dirhams).</p></div>
+      <div class="onglets" id="dep-onglets"></div>
+    </div>
+    <div class="alerte" id="dep-manque" hidden></div>
+    <div class="gros" id="dep-gros"></div>
+    <div class="dep-duo">
+      <div class="card"><h2>Détail des dépenses</h2>
+        <div class="scroll"><table>
+          <thead><tr><th>Poste</th><th>Calcul</th><th class="n">Quantité</th><th class="n">Prix unitaire</th><th class="n">Total</th></tr></thead>
+          <tbody id="dep-detail"></tbody>
+        </table></div>
+      </div>
+      <div class="card"><h2>Sur 1 kg vendu, où va l'argent ?</h2>
+        <div class="pile" id="dep-pile"></div>
+        <div class="flux" id="dep-flux"></div>
+        <p class="muted" style="font-size:.82rem;margin:0">Pas encore compté : le fruit acheté, le transport, les frais d'export.</p>
+      </div>
+    </div>
+    <div class="card"><h2>Résultat facture par facture</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>N° facture</th><th>Date</th><th>Société</th><th>Client</th><th class="n">Palettes</th><th class="n">Colis</th>
+          <th class="n">Net (kg)</th><th class="n">CA DH</th><th class="n">Dépenses DH</th><th class="n">Résultat DH</th><th class="n">Résultat / kg</th></tr></thead>
+        <tbody id="dep-factures"></tbody>
+      </table></div>
+    </div>
+    <div class="card"><h2>Prix d'achat</h2>
+      <div class="tarifs" id="dep-tarifs"></div>
+      <p class="muted" style="font-size:.82rem;margin:0">Prix donnés par Gabriel. Quand un prix change, les factures déjà passées gardent l'ancien.</p>
+    </div>
+  </section>
 
   <section aria-labelledby="soc-t" style="display:grid;gap:12px">
     <h2 id="soc-t">Par société</h2>
@@ -212,7 +279,7 @@ function societes(){
     b.style.setProperty("--c", coul(s));
     b.setAttribute("aria-pressed", String(filtreSoc === s));
     b.title = "Filtrer le registre sur " + s;
-    b.onclick = () => { filtreSoc = filtreSoc === s ? null : s; societes(); registre(); };
+    b.onclick = () => { filtreSoc = filtreSoc === s ? null : s; societes(); registre(); depenses(); };
     return b;
   }));
 }
@@ -262,7 +329,113 @@ function aCompleter(){
     el("td",{textContent:a.whatsapp_par || "—"}), el("td",{textContent:a.whatsapp_le || "—"})])));
 }
 
-kpis(); societes(); repartitions(); registre(); aCompleter();
+/* ---- Dépenses et résultat ---- */
+const FAMILLES = {palette:["Par palette","--k-pal"], colis:["Par colis","--k-col"], kg:["Par kilo","--k-poids"]};
+const BASE = {palette:"palettes", colis:"colis", kg:"net"};
+const POSTES = (D.tarifs && D.tarifs.postes) || [];
+// prix en vigueur à la date de la facture (dernière ligne dont « depuis » est passé)
+const prixAu = (p, date) => { const l = p.prix.filter(x => x.depuis <= date).pop(); return l ? l.dh : null; };
+const dh0 = v => dh(v, 0);
+const dhs = v => new Intl.NumberFormat("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+
+function coutsFacture(f){
+  const lignes = POSTES.map(p => {
+    const qte = (f[BASE[p.base]] || 0) * p.par, prix = prixAu(p, f.date);
+    return {p, qte, prix, total: prix == null ? 0 : qte * prix};
+  });
+  return {lignes, total: lignes.reduce((t, l) => t + l.total, 0)};
+}
+
+function depenses(){
+  const F = D.factures.filter(f => !filtreSoc || f.societe === filtreSoc);
+  const taux = D.cours ? D.cours.taux : null;
+  $("dep-onglets").replaceChildren(...[null, ...D.societes].map(s => {
+    const b = el("button",{type:"button",textContent:s || "Toutes"});
+    b.setAttribute("aria-pressed", String(filtreSoc === s));
+    b.onclick = () => { filtreSoc = s; societes(); registre(); depenses(); };
+    return b;
+  }));
+
+  const manque = POSTES.filter(p => p.prix.some(x => x.dh == null)).map(p => p.libelle);
+  $("dep-manque").hidden = !manque.length;
+  $("dep-manque").textContent = `Prix à renseigner : ${manque.join(", ")}. Ces postes ne sont pas encore comptés, donc les dépenses sont sous-estimées.`;
+
+  const parF = F.map(f => ({f, ...coutsFacture(f), ca: taux ? f.montant * taux : null}));
+  const dep = parF.reduce((t, x) => t + x.total, 0), net = sum(F,"net"), pal = sum(F,"palettes");
+  const ca = taux ? sum(F,"montant") * taux : null, res = ca == null ? null : ca - dep;
+  const tuiles = [["ca","CA facturé en dirhams", ca == null ? "—" : dh0(ca), taux ? `${eur.format(sum(F,"montant"))} × ${dhs(taux)}` : "Cours euro/dirham indisponible"],
+    ["dep","Dépenses", "− " + dh0(dep), net ? `${dhs(dep/net)} DH/kg · ${dh0(pal ? dep/pal : 0)}/palette` : ""],
+    ["res","Résultat", res == null ? "—" : dh0(res), res != null && net ? `${dhs(res/net)} DH/kg · ${dh0(pal ? res/pal : 0)}/palette` : ""],
+    ["part","Part des dépenses", ca ? new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1}).format(dep/ca*100) + " %" : "—", ca ? "du CA facturé" : ""]];
+  $("dep-gros").replaceChildren(...tuiles.map(([k,l,v,n]) => {
+    const d = el("div",{},[el("span",{className:"eyebrow",textContent:l}), el("b",{textContent:v}), el("small",{textContent:n})]);
+    d.style.setProperty("--k", `var(--k-${k})`);
+    return d;
+  }));
+
+  // détail par poste, regroupé par famille
+  const td = (t, cls = "") => el("td",{className:cls,textContent:t});
+  const parPoste = POSTES.map(p => {
+    const ls = parF.map(x => x.lignes.find(l => l.p === p));
+    const prix = [...new Set(ls.map(l => l.prix))];
+    return {p, qte: ls.reduce((t,l) => t + l.qte, 0), total: ls.reduce((t,l) => t + l.total, 0), prix};
+  });
+  const rangs = [];
+  Object.entries(FAMILLES).forEach(([base, [titre, c]]) => {
+    const ps = parPoste.filter(x => x.p.base === base);
+    if (!ps.length) return;
+    const qBase = base === "kg" ? `${ent.format(net)} kg nets` : `${ent.format(sum(F, BASE[base]))} ${BASE[base]}`;
+    const g = el("tr",{className:"grp"},[el("td",{colSpan:5,textContent:`${titre} · ${qBase}`})]);
+    g.style.setProperty("--c", `var(${c})`); rangs.push(g);
+    ps.forEach(x => {
+      const connus = x.prix.filter(v => v != null);
+      const pu = el("span",{className:"pu" + (connus.length ? "" : " vide"),
+        textContent: !connus.length ? "à renseigner" : connus.length > 1 ? "plusieurs" : dhs(connus[0]) + " DH"});
+      const tr = el("tr",{},[td(x.p.libelle), td(`${x.p.par} × ${base === "kg" ? "kg net" : base}`), td(ent.format(x.qte),"n"),
+        el("td",{className:"n"},[pu]), td(connus.length ? ent.format(Math.round(x.total)) : "—","n")]);
+      tr.style.setProperty("--c", `var(${c})`); rangs.push(tr);
+    });
+  });
+  rangs.push(el("tr",{className:"tot"},[td("Total dépenses"), td(""), td(""), td(""), td(dh0(dep),"n")]));
+  $("dep-detail").replaceChildren(...rangs);
+
+  // sur 1 kg : prix de vente, chaque famille de dépenses, ce qui reste
+  const fam = Object.entries(FAMILLES).map(([base,[titre,c]]) => [titre, c, parPoste.filter(x => x.p.base === base).reduce((t,x) => t + x.total, 0)]);
+  if (net && ca){
+    const pkg = ca / net, reste = res / net;
+    $("dep-pile").replaceChildren(...fam.map(([t,c,v]) => Object.assign(el("div",{title:`${t} : ${dhs(v/net)} DH/kg`}),{style:`flex:${v};background:var(${c})`})),
+      Object.assign(el("div",{textContent:`Résultat ${Math.round(reste/pkg*100)} %`}),{style:`flex:${Math.max(res,0)};background:var(--k-res)`}));
+    const ligne = (l, v, c, cls = "") => [el("span",{textContent:l}), Object.assign(el("span",{className:"t"}),{style:`width:${Math.min(100,Math.abs(v)/pkg*100).toFixed(1)}%;background:var(${c})`}),
+      el("span",{className:"v " + cls,textContent:v})];
+    $("dep-flux").replaceChildren(...ligne("Prix de vente", pkg, "--k-ca").map((e,i) => i === 2 ? Object.assign(e,{textContent:dhs(pkg) + " DH"}) : e),
+      ...fam.flatMap(([t,c,v]) => ligne(t, v/net, c).map((e,i) => i === 2 ? Object.assign(e,{textContent:"− " + dhs(v/net)}) : e)),
+      ...ligne("Reste", reste, "--k-res", "res").map((e,i) => i === 2 ? Object.assign(e,{textContent:dhs(reste) + " DH"}) : e));
+  } else {
+    $("dep-pile").replaceChildren();
+    $("dep-flux").replaceChildren(el("p",{className:"muted",textContent:F.length ? "Cours euro/dirham indisponible." : "Aucune facture."}));
+  }
+
+  // facture par facture, la plus récente en haut
+  $("dep-factures").replaceChildren(...(parF.length ? parF.slice().reverse().map(x => {
+    const r = x.ca == null ? null : x.ca - x.total;
+    const tr = el("tr",{},[td(x.f.numero), td(dfr(x.f.date)), el("td",{},[el("span",{className:"tag",textContent:x.f.societe})]), td(x.f.groupe),
+      td(ent.format(x.f.palettes),"n"), td(ent.format(x.f.colis),"n"), td(ent.format(x.f.net),"n"),
+      td(x.ca == null ? "—" : ent.format(Math.round(x.ca)),"n"), td(ent.format(Math.round(x.total)),"n"),
+      td(r == null ? "—" : ent.format(Math.round(r)),"n res"), td(r == null || !x.f.net ? "—" : dhs(r/x.f.net),"n")]);
+    tr.style.setProperty("--c", coul(x.f.societe));
+    return tr;
+  }) : [el("tr",{},[el("td",{colSpan:11,className:"empty",textContent:"Aucune facture."})])]));
+
+  $("dep-tarifs").replaceChildren(...POSTES.map(p => {
+    const v = p.prix[p.prix.length - 1].dh;
+    const d = el("div",{className:"tarif" + (v == null ? " vide" : "")},[el("span",{textContent:p.libelle + (p.par > 1 ? ` (×${p.par})` : "")}),
+      el("b",{textContent: v == null ? "à renseigner" : dhs(v) + (p.base === "kg" ? " DH/kg" : " DH")})]);
+    d.style.setProperty("--c", `var(${FAMILLES[p.base][1]})`);
+    return d;
+  }));
+}
+
+kpis(); depenses(); societes(); repartitions(); registre(); aCompleter();
 $("search").addEventListener("input", registre);
 
 /* ---- Questions à Claude ---- */
@@ -274,11 +447,12 @@ Réponds en français, simplement et précisément, uniquement à partir des don
 - « prix_unit » est le prix par colis ; « kg_colis » le poids d'un colis ; « net »/« brut » en kg ; « montant » en euros.
 - « cours_eur_mad » est le cours euro → dirham du moment (taux, source, heure) : utilise-le pour toute conversion en dirhams (DH) et précise le cours employé.
 - « colis_par_calibre » donne le nombre de colis par calibre ; « 14-16 » est une palette mixte.
+- « tarifs_depenses » donne les prix d'achat en DH (base palette, colis ou kg net ; « par » = quantité par base ; prix daté « depuis », dh null = pas encore renseigné). Dépenses d'une facture = somme des quantités × prix en vigueur à sa date ; résultat = montant × cours − dépenses. Signale les prix manquants.
 - Si l'information n'est pas dans les données, dis-le clairement et ne l'invente pas.
 - Pas de tableaux Markdown ni de titres ; des phrases courtes ou des listes à tirets. Montants au format français (44 880,00 €).
 Date du jour : ${new Date().toLocaleDateString("fr-FR")}.
 DONNÉES :
-${JSON.stringify({mis_a_jour:D.mis_a_jour, cours_eur_mad:D.cours, factures:D.factures, a_completer:D.a_completer, objectifs_clients_unite_non_precisee:D.objectifs_clients, societes:D.referentiel_societes})}`;
+${JSON.stringify({mis_a_jour:D.mis_a_jour, cours_eur_mad:D.cours, factures:D.factures, a_completer:D.a_completer, objectifs_clients_unite_non_precisee:D.objectifs_clients, societes:D.referentiel_societes, tarifs_depenses:D.tarifs})}`;
 
 let tours = [], ctl = null, sample = null;
 const thread = $("thread");
