@@ -7,6 +7,9 @@ Les numéros de compte bancaire ne sont pas mis dans la page.
 import datetime as dt
 import json
 import sys
+import time
+import urllib.request
+from zoneinfo import ZoneInfo
 from collections import Counter
 from pathlib import Path
 
@@ -36,6 +39,38 @@ def facture_pour_site(f):
     }
 
 
+_COURS = {"t": 0.0, "v": None}
+
+
+def _json(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=6) as r:
+        return json.load(r)
+
+
+def cours_eur_mad():
+    """Cours EUR → MAD du moment (Yahoo Finance), sinon cours du jour (ExchangeRate-API).
+    Gardé 5 minutes pour ne pas interroger le site de change à chaque visite."""
+    if _COURS["v"] and time.time() - _COURS["t"] < 300:
+        return _COURS["v"]
+    maroc = ZoneInfo("Africa/Casablanca")
+    v = None
+    try:
+        m = _json("https://query1.finance.yahoo.com/v8/finance/chart/EURMAD=X?range=1d&interval=5m")
+        m = m["chart"]["result"][0]["meta"]
+        v = {"taux": round(float(m["regularMarketPrice"]), 4), "source": "Yahoo Finance (marché)",
+             "heure": f"{dt.datetime.fromtimestamp(m['regularMarketTime'], maroc):%d/%m/%Y %H:%M}"}
+    except Exception:
+        try:
+            d = _json("https://open.er-api.com/v6/latest/EUR")
+            v = {"taux": round(float(d["rates"]["MAD"]), 4), "source": "ExchangeRate-API (cours du jour)",
+                 "heure": f"{dt.datetime.fromtimestamp(d['time_last_update_unix'], maroc):%d/%m/%Y %H:%M}"}
+        except Exception:
+            v = _COURS["v"]  # dernier cours connu, ou rien
+    _COURS.update(t=time.time(), v=v)
+    return v
+
+
 def page_html(local=False):
     """La page complète ; local=True pour le site du Mac (questions via le serveur)."""
     donnees = json.loads(FICHIER.read_text(encoding="utf-8"))
@@ -47,6 +82,7 @@ def page_html(local=False):
         "mis_a_jour": f"{dt.datetime.fromtimestamp(FICHIER.stat().st_mtime):%d/%m/%Y à %H:%M}",
         "societes": SOCIETES + autres,
         "factures": [facture_pour_site(f) for f in factures],
+        "cours": cours_eur_mad(),
         "objectifs_clients": DONNEES["objectifs_clients"],
         "a_completer": [{k: a.get(k) for k in ("pdf", "dossier", "whatsapp_par", "whatsapp_le")}
                         for a in DONNEES.get("a_completer", [])],
