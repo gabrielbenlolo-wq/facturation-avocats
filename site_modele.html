@@ -586,12 +586,20 @@ function analytique(parPoste, F, net, ca, taux){
   const pkg = net ? caV / net : 0, maxFruit = net ? (caV + (ecarts || 0) - cv) / net : null, fkg = net ? fruit / net : 0;
   const minVente = net ? (fruit - (ecarts || 0) + cv) / net : null, eurKg = net ? sum(F,"montant") / net : 0;
   const ecartFruit = maxFruit == null ? 0 : fkg - maxFruit;
+  const cible = Math.round((A.marge_brute_cible ?? 0.10) * 100);
+  const fCible = net ? (caV * (1 - cible/100) + (ecarts || 0)) / net : null, fCibleMcv = fCible == null ? null : fCible - cv / net;
+  const pc = v => new Intl.NumberFormat("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1}).format(caV ? v/caV*100 : 0);
   const ec = new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:2});
   $("ana-cotes").replaceChildren(
     tuile("part", "Seuil de rentabilité = CF / taux MCV", seuil, noteSeuil),
     tuile("fruit", "Prix d'achat maximum du fruit", maxFruit == null || !ca ? "—" : dhs(maxFruit) + " DH/kg",
       !ca || !net ? "" : `Au-dessus, la MCV devient négative (vente ${dhs(pkg)}${ecarts ? ` + écarts ${dhs(ecarts/net)}` : ""} − charges variables ${dhs(cv/net)}).`
         + (fruitConnu ? ` Aujourd'hui : ${dhs(fkg)} → ${dhs(Math.abs(ecartFruit))} DH/kg ${ecartFruit > 0 ? "de trop" : "de marge"}.` : "")),
+    // prix d'achat du fruit qui laisse la marge brute cible (10 % du prix de vente par défaut)
+    tuile("fruit", `Prix d'achat du fruit pour ${cible} % de marge brute`, !ca || !net ? "—" : dhs(fCible) + " DH/kg",
+      !ca || !net ? "" : `${100 - cible} % du prix de vente (${dhs(pkg)})${ecarts ? ` + écarts ${dhs(ecarts/net)}` : ""}.`
+        + (fruitConnu ? ` Aujourd'hui : ${dhs(fkg)} DH/kg → marge brute ${pc(mb)} %.` : "")
+        + ` Pour ${cible} % après charges variables (MCV) : ${dhs(fCibleMcv)} DH/kg.`),
     tuile("ca", "Prix de vente minimum", minVente == null || !ca ? "—" : dhs(minVente) + " DH/kg",
       !ca || !net ? "" : `${taux ? `≈ ${ec.format(minVente / taux)}/kg au cours du jour, ` : ""}pour couvrir fruit et charges variables (hors charges fixes). Facturé : ${ec.format(eurKg)}/kg.`),
     el("div",{className:"card",style:"padding:12px 14px;display:grid;gap:8px"},[
@@ -782,7 +790,7 @@ Réponds en français, simplement et précisément, uniquement à partir des don
 - « colis_par_calibre » donne le nombre de colis par calibre ; « 14-16 » est une palette mixte.
 - « tarifs_depenses » donne les prix d'achat en DH (base palette, colis ou kg net ; « par » = quantité par base ; prix daté « depuis », dh null = pas encore renseigné ; « kg_colis » = ne s'applique qu'aux factures dont le colis fait ce poids, ex. carton 4 kg ou caisse plastique 10 kg). Dépenses d'une facture = somme des quantités × prix en vigueur à sa date ; résultat = montant × cours − dépenses. Le poste « Transport » vient du barème « transport.lignes » (destination × mode route/conteneur de la facture ; base envoi, palette ou kg ; devise EUR à convertir au cours) ; « Frais d'export » est un montant par envoi. Signale les prix manquants.
 - « regle » = euros déjà reçus sur la facture (acompte + solde saisis par Karim). « avances » = avances de campagne reçues par une société (ex. 2 000 000 € pour GLOBAL FARMING), comptées dans le montant réglé de cette société ; reste à recevoir = CA facturé − réglé (jamais négatif ; sinon c'est de l'avance pas encore couverte par des factures).
-- « analytique » suit la fiche « structure analytique » de Gabriel : (I) marge brute = CA − achat fruit + écarts vendus (dh_kg × kg nets) ; (II) charges variables = tous les autres postes de tarifs_depenses ; (III) MCV = I − II, taux de MCV = MCV / CA ; (IV) charges fixes = montant_dh pour la campagne, réparties entre sociétés au prorata des kg nets ; (V) résultat analytique = III − IV ; seuil de rentabilité = charges fixes / taux de MCV (non atteignable si la MCV est négative). null = à renseigner.
+- « analytique » suit la fiche « structure analytique » de Gabriel : (I) marge brute = CA − achat fruit + écarts vendus (dh_kg × kg nets) ; (II) charges variables = tous les autres postes de tarifs_depenses ; (III) MCV = I − II, taux de MCV = MCV / CA ; (IV) charges fixes = montant_dh pour la campagne, réparties entre sociétés au prorata des kg nets ; (V) résultat analytique = III − IV ; seuil de rentabilité = charges fixes / taux de MCV (non atteignable si la MCV est négative) ; prix d'achat du fruit pour la marge brute cible (marge_brute_cible, 10 %) = (CA × (1 − cible) + écarts) / kg nets. null = à renseigner.
 - Si l'information n'est pas dans les données, dis-le clairement et ne l'invente pas.
 - Pas de tableaux Markdown ni de titres ; des phrases courtes ou des listes à tirets. Montants au format français (44 880,00 €).
 Date du jour : ${new Date().toLocaleDateString("fr-FR")}.
