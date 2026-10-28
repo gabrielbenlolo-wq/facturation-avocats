@@ -760,5 +760,15 @@
         }
       ]
     }
-  }
+  },
+  "avances": [
+    {
+      "societe": "GLOBAL FARMING",
+      "libelle": "Avance campagne 2026-2027",
+      "montant": 2000000.0,
+      "devise": "EUR",
+      "date": null,
+      "remarque": "Donnée par Gabriel le 28/10/2026 ; date de réception à préciser."
+    }
+  ]
 }

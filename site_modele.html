@@ -10,7 +10,7 @@
   --ng:#4E8A34; --gf:#2F6FB0; --vf:#7A4DB3; --ad:#C46A1E; --gan:#B8344A; --autre:#7B807A;
   --ok:#2E7D32; --warn:#A6620B;
   /* une couleur par chiffre clé ; l'euro et le dirham d'une même mesure partagent la sienne */
-  --k-ca:#0F766E; --k-fac:#475569; --k-pal:#8B5E34; --k-col:#A16207; --k-poids:#0E7490; --k-prix:#4338CA; --k-cours:#1F2937; --k-dep:#B45309; --k-res:#2E7D32; --k-part:#BE185D; --k-trans:#6D28D9;
+  --k-ca:#0F766E; --k-fac:#475569; --k-pal:#8B5E34; --k-col:#A16207; --k-poids:#0E7490; --k-prix:#4338CA; --k-cours:#1F2937; --k-dep:#B45309; --k-res:#2E7D32; --k-part:#BE185D; --k-trans:#6D28D9; --k-regle:#047857; --k-reste:#B91C1C;
   --f-display:"Spectral", Georgia, "Times New Roman", serif;
   --f-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r:10px;
@@ -20,13 +20,13 @@
   --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
   --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
   --ok:#7BC47F; --warn:#E3A250;
-  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; color-scheme:dark }}
+  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-regle:#34D399; --k-reste:#F87171; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#111711; --panel:#192119; --fg:#E5ECE1; --muted:#9BA897; --line:#2C372B;
   --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
   --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
   --ok:#7BC47F; --warn:#E3A250;
-  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; color-scheme:dark }
+  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-regle:#34D399; --k-reste:#F87171; color-scheme:dark }
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .page{max-width:1180px;margin-inline:auto;padding-block:28px 56px;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
@@ -76,6 +76,8 @@ button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line
 .soc .nom{font-weight:700;font-size:.85rem;letter-spacing:.04em;color:var(--c)}
 .soc .ca{font-family:var(--f-display);font-size:1.3rem;font-variant-numeric:tabular-nums}
 .soc.vide .ca{color:var(--muted)}
+.soc .regl{font-size:.82rem;color:var(--k-regle);font-weight:600}
+.soc .regl.reste{color:var(--k-reste)}
 
 /* Répartitions */
 .duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}
@@ -282,11 +284,30 @@ let filtreSoc = null;
 $("maj").textContent = `Données au ${D.mis_a_jour} · ${D.factures.length} facture(s)`;
 if (MODE_LOCAL) $("maj-mode").textContent = "Site mis à jour automatiquement à chaque facture relevée sur WhatsApp (recharge la page).";
 
+// par société : CA facturé, réglé (règlements saisis par Karim + avances), reste à recevoir,
+// et la part d'une avance pas encore couverte par des factures
+function reglements(){
+  const parSoc = {};
+  D.societes.forEach(s => {
+    const F = D.factures.filter(f => f.societe === s), ca = sum(F,"montant");
+    const av = (D.avances || []).filter(a => a.societe === s).reduce((t,a) => t + a.montant, 0);
+    const regle = sum(F,"regle") + av;
+    parSoc[s] = {ca, av, regle, reste: Math.max(0, ca - regle), aCouvrir: Math.max(0, regle - ca)};
+  });
+  const tot = {ca:0, av:0, regle:0, reste:0, aCouvrir:0};
+  Object.values(parSoc).forEach(x => Object.keys(tot).forEach(k => tot[k] += x[k]));
+  return {parSoc, tot};
+}
+
 function kpis(){
   const F = D.factures, ca = sum(F,"montant"), net = sum(F,"net");
+  const R = reglements().tot;
   const c = D.cours;  // cours EUR → MAD relevé au moment de l'ouverture de la page
   // [couleur, titre, valeur, note, en dirhams ?]
-  const items = [["ca","CA facturé", eur.format(ca)], ["fac","Factures", ent.format(F.length)], ["pal","Palettes", ent.format(sum(F,"palettes"))],
+  const items = [["ca","CA facturé", eur.format(ca)],
+    ["regle","Montant réglé", eur.format(R.regle), R.av ? `dont ${eur.format(R.av)} d'avance campagne` : "Règlements saisis par Karim"],
+    ["reste","Reste à recevoir", eur.format(R.reste), R.aCouvrir ? `Avance pas encore couverte par des factures : ${eur.format(R.aCouvrir)}` : "Factures pas encore réglées"],
+    ["fac","Factures", ent.format(F.length)], ["pal","Palettes", ent.format(sum(F,"palettes"))],
     ["col","Colis", ent.format(sum(F,"colis"))], ["poids","Poids net", ent.format(net) + " kg"], ["prix","Prix moyen", net ? ekg(ca/net) : "—"],
     ["cours","Cours de 1 € en dirhams", c ? dh(c.taux, 4) : "Indisponible", c ? `${c.source} · ${c.heure}` : "Le site de change ne répond pas : recharge plus tard."],
     ["prix","Prix moyen en dirhams", c && net ? dh(ca/net*c.taux, 3) + "/kg" : "—", c ? "Prix moyen × cours" : "", true],
@@ -301,12 +322,15 @@ function kpis(){
 }
 
 function societes(){
+  const RS = reglements().parSoc;
   $("socs").replaceChildren(...D.societes.map(s => {
-    const F = D.factures.filter(f => f.societe === s), ca = sum(F,"montant");
+    const F = D.factures.filter(f => f.societe === s), ca = sum(F,"montant"), r = RS[s];
     const b = el("button",{className:"soc" + (F.length ? "" : " vide"), type:"button"},[
       el("span",{className:"nom",textContent:s}),
       el("span",{className:"ca",textContent:eur.format(ca)}),
-      el("span",{className:"muted",textContent:F.length ? `${F.length} facture(s) · ${ent.format(sum(F,"palettes"))} palettes` : "Aucune facture pour l'instant"})]);
+      el("span",{className:"muted",textContent:F.length ? `${F.length} facture(s) · ${ent.format(sum(F,"palettes"))} palettes` : "Aucune facture pour l'instant"}),
+      ...(r.regle || r.ca ? [el("span",{className:"regl",textContent:`Réglé ${eur.format(r.regle)}` + (r.av ? ` (dont avance ${eur.format(r.av)})` : "")}),
+        el("span",{className:"regl reste",textContent:r.aCouvrir ? `Avance à couvrir : ${eur.format(r.aCouvrir)}` : `Reste à recevoir : ${eur.format(r.reste)}`})] : [])]);
     b.style.setProperty("--c", coul(s));
     b.setAttribute("aria-pressed", String(filtreSoc === s));
     b.title = "Filtrer le registre sur " + s;
@@ -571,11 +595,12 @@ Réponds en français, simplement et précisément, uniquement à partir des don
 - « cours_eur_mad » est le cours euro → dirham du moment (taux, source, heure) : utilise-le pour toute conversion en dirhams (DH) et précise le cours employé.
 - « colis_par_calibre » donne le nombre de colis par calibre ; « 14-16 » est une palette mixte.
 - « tarifs_depenses » donne les prix d'achat en DH (base palette, colis ou kg net ; « par » = quantité par base ; prix daté « depuis », dh null = pas encore renseigné ; « kg_colis » = ne s'applique qu'aux factures dont le colis fait ce poids, ex. carton 4 kg ou caisse plastique 10 kg). Dépenses d'une facture = somme des quantités × prix en vigueur à sa date ; résultat = montant × cours − dépenses. Le poste « Transport » vient du barème « transport.lignes » (destination × mode route/conteneur de la facture ; base envoi, palette ou kg ; devise EUR à convertir au cours) ; « Frais d'export » est un montant par envoi. Signale les prix manquants.
+- « regle » = euros déjà reçus sur la facture (acompte + solde saisis par Karim). « avances » = avances de campagne reçues par une société (ex. 2 000 000 € pour GLOBAL FARMING), comptées dans le montant réglé de cette société ; reste à recevoir = CA facturé − réglé (jamais négatif ; sinon c'est de l'avance pas encore couverte par des factures).
 - Si l'information n'est pas dans les données, dis-le clairement et ne l'invente pas.
 - Pas de tableaux Markdown ni de titres ; des phrases courtes ou des listes à tirets. Montants au format français (44 880,00 €).
 Date du jour : ${new Date().toLocaleDateString("fr-FR")}.
 DONNÉES :
-${JSON.stringify({mis_a_jour:D.mis_a_jour, cours_eur_mad:D.cours, factures:D.factures, a_completer:D.a_completer, objectifs_clients_unite_non_precisee:D.objectifs_clients, societes:D.referentiel_societes, tarifs_depenses:D.tarifs})}`;
+${JSON.stringify({mis_a_jour:D.mis_a_jour, cours_eur_mad:D.cours, factures:D.factures, a_completer:D.a_completer, objectifs_clients_unite_non_precisee:D.objectifs_clients, societes:D.referentiel_societes, tarifs_depenses:D.tarifs, avances:D.avances})}`;
 
 let tours = [], ctl = null, sample = null;
 const thread = $("thread");

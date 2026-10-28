@@ -16,6 +16,15 @@ from pathlib import Path
 ICI = Path(__file__).resolve().parent
 FICHIER = ICI / "data" / "factures.json"
 DONNEES = json.loads(FICHIER.read_text(encoding="utf-8"))
+PAIEMENTS = FICHIER.with_name("paiements.json")  # règlements saisis par Karim, par n° de facture
+REGLEMENTS = {}
+
+
+def _eur(v):
+    try:
+        return float(str(v).replace("\u202f", "").replace(" ", "").replace(",", ".")) if v not in (None, "") else 0.0
+    except ValueError:
+        return 0.0
 SOCIETES = ["NEW GREEN", "GLOBAL FARMING", "VITAL FROZEN", "ADOLAM", "GAN FRUITS"]
 
 
@@ -36,6 +45,7 @@ def facture_pour_site(f):
         "transporteur": f.get("transporteur"), "whatsapp_par": f.get("whatsapp_par"),
         "whatsapp_le": f.get("whatsapp_le"), "pdf": f"{f.get('dossier', '')}/{f['pdf']}",
         "remarques": f.get("remarques"), "colis_par_calibre": dict(calibres),
+        "regle": round(sum(_eur(REGLEMENTS.get(f["numero"], {}).get(k)) for k in ("Acompte reçu €", "Solde reçu €")), 2),
         "transport_mode": f.get("transport_mode") or ("conteneur" if f.get("conteneur") else "route"),
     }
 
@@ -77,6 +87,9 @@ def page_html(local=False):
     donnees = json.loads(FICHIER.read_text(encoding="utf-8"))
     DONNEES.clear()
     DONNEES.update(donnees)  # relu à chaque appel : le serveur sert toujours les dernières factures
+    REGLEMENTS.clear()
+    if PAIEMENTS.exists():
+        REGLEMENTS.update(json.loads(PAIEMENTS.read_text(encoding="utf-8")))
     factures = sorted(DONNEES["factures"], key=lambda f: (f["date"], f["numero"]))
     autres = sorted({f["societe"] for f in factures} - set(SOCIETES))
     data = {
@@ -86,6 +99,7 @@ def page_html(local=False):
         "cours": cours_eur_mad(),
         "objectifs_clients": DONNEES["objectifs_clients"],
         "tarifs": DONNEES.get("tarifs"),
+        "avances": DONNEES.get("avances", []),
         "a_completer": [{k: a.get(k) for k in ("pdf", "dossier", "whatsapp_par", "whatsapp_le")}
                         for a in DONNEES.get("a_completer", [])],
         "referentiel_societes": {n: {k: v for k, v in s.items() if k not in ("compte", "swift")}
