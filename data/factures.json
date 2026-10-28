@@ -841,7 +841,6 @@
       }
     ],
     "periode_charges_fixes": "campagne 2026-2027 entière",
-    "repartition": "au prorata des kg nets vendus par société",
-    "marge_brute_cible": 0.1
+    "repartition": "au prorata des kg nets vendus par société"
   }
 }
