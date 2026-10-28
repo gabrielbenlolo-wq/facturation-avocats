@@ -158,6 +158,31 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
 .onglet-detail{font-size:.85rem;padding:5px 14px;border-radius:999px}
 .onglet-detail[aria-expanded="true"]{background:var(--fg);border-color:var(--fg);color:var(--panel)}
 .tarifs:not(.ouvert) .tarif:not(.total){display:none}
+/* Structure analytique (fiche de Gabriel) : cascade I à V, lignes clés en rose, à renseigner en jaune */
+.ana-duo{display:grid;gap:16px;align-items:start}
+@media (min-width:900px){.ana-duo{grid-template-columns:1.6fr 1fr}}
+.ana td{white-space:nowrap}
+.ana td:first-child{white-space:normal}
+.ana tr.cle td{background:color-mix(in srgb,var(--k-part) 12%,var(--panel));font-weight:700;border-bottom:2px solid var(--k-part)}
+.ana tr.det td:first-child{padding-left:24px}
+.ana tr.taux td{color:var(--muted);font-style:italic;font-size:.85rem}
+.ana tr.taux td:first-child{padding-left:24px}
+.ana tr.sec td{color:var(--muted);font-weight:700;font-size:.76rem;letter-spacing:.05em;text-transform:uppercase;padding-top:14px}
+.ana tr.ar td{background:color-mix(in srgb,#F5C842 24%,var(--panel))}
+.ana .num{display:inline-block;min-width:28px;text-align:center;border-radius:6px;background:var(--k-part);color:var(--panel);font-size:.72rem;padding:1px 5px;margin-right:6px;font-style:normal}
+.ana .badge{font-size:.72rem;color:#8A6500;border:1px solid #D9A514;border-radius:999px;padding:0 7px;margin-left:6px;font-weight:600;white-space:nowrap}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ana .badge{color:#F5C842}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ana-cf .vide{color:#F5C842}}
+:root[data-theme="dark"] .ana .badge,:root[data-theme="dark"] .ana-cf .vide{color:#F5C842}
+.ana .moins{color:var(--k-dep)}
+.ana-cotes{display:grid;gap:12px}
+.ana-t{border:1px solid var(--line);border-left:6px solid var(--k);border-radius:var(--r);padding:12px 14px;display:grid;gap:3px;
+  background:color-mix(in srgb,var(--k) 8%,var(--panel))}
+.ana-t .eyebrow{color:var(--k)}
+.ana-t b{font-family:var(--f-display);font-weight:600;font-size:clamp(1.3rem,2.6vw,1.7rem);font-variant-numeric:tabular-nums}
+.ana-t small{font-size:.8rem;color:var(--muted)}
+.ana-cf{display:grid;grid-template-columns:1fr auto;gap:5px 10px;font-size:.86rem;align-items:center}
+.ana-cf .vide{color:#8A6500;border:1px dashed #D9A514;border-radius:6px;padding:0 8px;background:color-mix(in srgb,#F5C842 22%,var(--panel))}
 #dep-bareme-bloc:not(.ouvert),#dep-detail-bloc:not(.ouvert){display:none !important}
 .leg-dep{display:grid;gap:6px;font-size:.92rem;font-variant-numeric:tabular-nums}
 .leg-dep div{display:flex;justify-content:space-between;gap:10px;padding-left:10px;border-left:4px solid var(--c)}
@@ -203,6 +228,17 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
     <div class="alerte" id="dep-manque" hidden></div>
     <div id="dep-avances" style="display:grid;gap:10px"></div>
     <div class="gros" id="dep-gros"></div>
+    <div class="card ana">
+      <div class="dep-head"><div><h2>Structure analytique</h2>
+        <p class="muted">Sur les factures affichées : marge brute, charges variables, charges fixes, jusqu'au résultat analytique.</p></div></div>
+      <div class="ana-duo">
+        <div class="scroll"><table>
+          <thead><tr><th>Poste</th><th class="n">Total DH</th><th class="n">DH / kg</th><th class="n">% du CA</th></tr></thead>
+          <tbody id="ana-table"></tbody>
+        </table></div>
+        <div class="ana-cotes" id="ana-cotes"></div>
+      </div>
+    </div>
     <div class="dep-duo">
       <div class="card">
         <div class="dep-head"><h2>Détail des dépenses</h2>
@@ -466,6 +502,105 @@ repliable("dep-tarifs-btn", "dep-tarifs", "detailPrix", "Voir le détail", "Masq
 repliable("dep-detail-btn", "dep-detail-bloc", "detailDepenses", "Voir le détail", "Masquer le détail");
 repliable("dep-bareme-btn", "dep-bareme-bloc", "detailBareme", "Voir le barème", "Masquer le barème");
 
+/* ---- Structure analytique : (I) marge brute, (II) charges variables, (III) MCV, (IV) charges fixes, (V) résultat ---- */
+const A = D.analytique || {};
+// lignes des charges variables, regroupées comme sur la fiche ; un poste absent des groupes a sa propre ligne
+const GROUPES_CV = [["Presta station « kg » (MOD + énergie)", ["station"]], ["Frais JNI", ["jni"]],
+  ["Palette · cornières ×4 · feuillard · chapeau", ["palette","corniere","cerclage","chapeau"]],
+  ["Colis : carton 4 kg / caisse plastique 10 kg", ["carton","caisse"]], ["Étiquette thermique", ["etiquette"]],
+  ["Transport local marchandises", ["transport_local"]], ["Transport international & transit", ["transport","export"]]];
+
+function analytique(parPoste, F, net, ca, taux){
+  const td = (t, cls = "") => el("td",{className:cls,textContent:t});
+  const signe = v => (v < 0 ? "− " : "") + ent.format(Math.round(Math.abs(v)));
+  const pct = v => ca ? new Intl.NumberFormat("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1}).format(v/ca*100) + " %" : "—";
+  const parKg = v => net ? (v < 0 ? "− " : "") + dhs(Math.abs(v)/net) : "—";
+  const num = n => el("span",{className:"num",textContent:n});
+  const badge = () => el("span",{className:"badge",textContent:"à renseigner"});
+  const rangs = [];
+  // v null = montant pas encore connu : ligne jaune « à renseigner »
+  const ligne = (cls, titre, v, cout = false) => {
+    // sans facture affichée : tirets, sans « à renseigner »
+    const vide = v == null, rien = !F.length && !vide, perte = !vide && !rien && !cout && v < 0;
+    const c = (cout ? "moins" : perte ? "res perte" : "");
+    const tr = el("tr",{className:cls + (vide ? " ar" : "")},[el("td",{},[...(Array.isArray(titre) ? titre : [titre]), ...(vide ? [badge()] : [])]),
+      td(vide || rien ? "—" : cout ? "− " + ent.format(Math.round(v)) : signe(v), "n " + c),
+      td(vide || rien ? "—" : cout ? "− " + dhs(v/(net || 1)) : parKg(v), "n " + c),
+      td(vide || rien ? "—" : (perte ? "− " : "") + pct(Math.abs(v)), "n " + c)]);
+    tr.style.setProperty("--c", vide ? "#D9A514" : cls.includes("cle") ? "var(--k-part)" : "transparent");
+    rangs.push(tr);
+  };
+  const taux_ = (titre, v) => rangs.push(el("tr",{className:"taux"},[td(titre), td(""), td(""), td(ca ? (v < 0 ? "− " : "") + pct(Math.abs(v)) : "—","n")]));
+  const sec = (n, titre) => rangs.push(el("tr",{className:"sec"},[el("td",{colSpan:4},[num(n), titre])]));
+  // sans facture affichée, un poste est « connu » si son prix d'achat est renseigné
+  const connu = x => F.length ? x.prix.some(v => v != null) : !!x.p.bareme || (x.p.prix || []).some(l => l.dh != null);
+
+  const fruits = parPoste.filter(x => famille(x.p) === "fruit");
+  const fruit = fruits.reduce((t,x) => t + x.total, 0), fruitConnu = fruits.some(connu);
+  const ekg = (A.ecarts_vendus || {}).dh_kg, ecarts = ekg == null ? null : ekg * net;
+  const cvs = parPoste.filter(x => famille(x.p) !== "fruit"), cv = cvs.reduce((t,x) => t + x.total, 0);
+  const caV = ca || 0, mb = caV - fruit + (ecarts || 0), mcv = mb - cv;
+  // charges fixes de la campagne, réparties au prorata des kg nets de la société affichée
+  const part = filtreSoc ? net / (sum(D.factures,"net") || 1) : 1;
+  const CF = (A.charges_fixes || []).map(c => ({...c, v: c.montant_dh == null ? null : c.montant_dh * part}));
+  const cf = CF.reduce((t,c) => t + (c.v || 0), 0), cfConnu = CF.some(c => c.v != null);
+
+  ligne("", el("b",{textContent:"Prix de vente export"}), caV);
+  ligne("det", "− Achat fruit", fruitConnu ? fruit : null, true);
+  ligne("det", "+ Écarts vendus", ecarts);
+  ligne("cle", [num("I"), "Marge brute"], mb);
+  taux_("% de marge brute", mb);
+  sec("II", "Charges variables");
+  const pris = new Set();
+  [...GROUPES_CV, ...cvs.filter(x => !GROUPES_CV.some(([, ids]) => ids.includes(x.p.id))).map(x => [x.p.libelle, [x.p.id]])].forEach(([titre, ids]) => {
+    const xs = cvs.filter(x => ids.includes(x.p.id) && !pris.has(x.p.id));
+    if (!xs.length) return;
+    xs.forEach(x => pris.add(x.p.id));
+    ligne("det", titre + (xs.some(x => x.exemple) ? " (exemple)" : ""), xs.some(connu) ? xs.reduce((t,x) => t + x.total, 0) : null, true);
+  });
+  ligne("cle", "Total charges variables", cv, true);
+  ligne("cle", [num("III"), "Marge sur charges variables (MCV) = I − II"], mcv);
+  taux_("Taux de MCV = MCV / prix de vente export", mcv);
+  sec("IV", "Charges fixes" + (filtreSoc ? ` · part de ${filtreSoc} (${new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1}).format(part*100)} % des kg)` : ""));
+  CF.forEach(c => ligne("det", c.libelle, c.v, true));
+  ligne("cle", [num("V"), "Résultat analytique = III − IV"], mcv - cf);
+  $("ana-table").replaceChildren(...rangs);
+
+  // à côté : seuil de rentabilité, prix d'achat maximum du fruit, prix de vente minimum, charges fixes
+  const tuile = (k, titre, valeur, note) => {
+    const d = el("div",{className:"ana-t"},[el("span",{className:"eyebrow",textContent:titre}), el("b",{textContent:valeur}), el("small",{textContent:note})]);
+    d.style.setProperty("--k", `var(--k-${k})`);
+    return d;
+  };
+  const kgCamion = F.length ? net / F.length : 0;
+  let seuil, noteSeuil;
+  if (!net || !ca){ seuil = "—"; noteSeuil = "Pas de facture ou cours indisponible."; }
+  else if (!cfConnu){ seuil = "charges fixes à renseigner"; noteSeuil = "Seuil = charges fixes ÷ taux de MCV : il s'affichera en DH de CA, en kg et en camions dès que les charges fixes seront saisies."; }
+  else if (mcv <= 0){ seuil = "non atteignable"; noteSeuil = "Tant que la MCV est négative, chaque kilo vendu creuse la perte : il faut d'abord baisser le prix d'achat du fruit ou les charges variables, ou vendre plus cher."; }
+  else {
+    const caS = cf / (mcv / ca), kgS = cf / (mcv / net);
+    seuil = dh0(caS);
+    noteSeuil = `${ent.format(Math.round(kgS))} kg nets` + (kgCamion ? ` · ≈ ${ent.format(Math.ceil(kgS / kgCamion))} camions` : "")
+      + ` · déjà vendu : ${new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0}).format(ca/caS*100)} % du seuil`;
+  }
+  const pkg = net ? caV / net : 0, maxFruit = net ? (caV + (ecarts || 0) - cv) / net : null, fkg = net ? fruit / net : 0;
+  const minVente = net ? (fruit - (ecarts || 0) + cv) / net : null, eurKg = net ? sum(F,"montant") / net : 0;
+  const ecartFruit = maxFruit == null ? 0 : fkg - maxFruit;
+  const ec = new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:2});
+  $("ana-cotes").replaceChildren(
+    tuile("part", "Seuil de rentabilité = CF / taux MCV", seuil, noteSeuil),
+    tuile("fruit", "Prix d'achat maximum du fruit", maxFruit == null || !ca ? "—" : dhs(maxFruit) + " DH/kg",
+      !ca || !net ? "" : `Au-dessus, la MCV devient négative (vente ${dhs(pkg)}${ecarts ? ` + écarts ${dhs(ecarts/net)}` : ""} − charges variables ${dhs(cv/net)}).`
+        + (fruitConnu ? ` Aujourd'hui : ${dhs(fkg)} → ${dhs(Math.abs(ecartFruit))} DH/kg ${ecartFruit > 0 ? "de trop" : "de marge"}.` : "")),
+    tuile("ca", "Prix de vente minimum", minVente == null || !ca ? "—" : dhs(minVente) + " DH/kg",
+      !ca || !net ? "" : `${taux ? `≈ ${ec.format(minVente / taux)}/kg au cours du jour, ` : ""}pour couvrir fruit et charges variables (hors charges fixes). Facturé : ${ec.format(eurKg)}/kg.`),
+    el("div",{className:"card",style:"padding:12px 14px;display:grid;gap:8px"},[
+      el("strong",{textContent:"Charges fixes" + (A.periode_charges_fixes ? ` · ${A.periode_charges_fixes}` : "")}),
+      el("div",{className:"ana-cf"}, CF.flatMap(c => [el("span",{textContent:c.libelle}),
+        el("span",{className:c.montant_dh == null ? "vide" : "",textContent:c.montant_dh == null ? "à saisir" : dh0(c.montant_dh)})])),
+      el("small",{className:"muted",textContent:"Montants pour la campagne entière, répartis entre les sociétés " + (A.repartition || "au prorata des kg") + "."})]));
+}
+
 function depenses(){
   const F = D.factures.filter(f => !filtreSoc || f.societe === filtreSoc);
   const taux = D.cours ? D.cours.taux : null;
@@ -553,6 +688,8 @@ function depenses(){
     d.style.setProperty("--c", `var(${c})`);
     return d;
   }), el("div",{className:"tot"},[el("span",{textContent:"Total dépenses"}), el("span",{textContent:dh0(dep) + (net ? ` · ${dhs(dep/net)} DH/kg` : "")})]));
+
+  analytique(parPoste, F, net, ca, taux);
 
   // prix d'achat du kilo d'avocat
   const fruit = POSTES.find(p => famille(p) === "fruit");
@@ -645,11 +782,12 @@ Réponds en français, simplement et précisément, uniquement à partir des don
 - « colis_par_calibre » donne le nombre de colis par calibre ; « 14-16 » est une palette mixte.
 - « tarifs_depenses » donne les prix d'achat en DH (base palette, colis ou kg net ; « par » = quantité par base ; prix daté « depuis », dh null = pas encore renseigné ; « kg_colis » = ne s'applique qu'aux factures dont le colis fait ce poids, ex. carton 4 kg ou caisse plastique 10 kg). Dépenses d'une facture = somme des quantités × prix en vigueur à sa date ; résultat = montant × cours − dépenses. Le poste « Transport » vient du barème « transport.lignes » (destination × mode route/conteneur de la facture ; base envoi, palette ou kg ; devise EUR à convertir au cours) ; « Frais d'export » est un montant par envoi. Signale les prix manquants.
 - « regle » = euros déjà reçus sur la facture (acompte + solde saisis par Karim). « avances » = avances de campagne reçues par une société (ex. 2 000 000 € pour GLOBAL FARMING), comptées dans le montant réglé de cette société ; reste à recevoir = CA facturé − réglé (jamais négatif ; sinon c'est de l'avance pas encore couverte par des factures).
+- « analytique » suit la fiche « structure analytique » de Gabriel : (I) marge brute = CA − achat fruit + écarts vendus (dh_kg × kg nets) ; (II) charges variables = tous les autres postes de tarifs_depenses ; (III) MCV = I − II, taux de MCV = MCV / CA ; (IV) charges fixes = montant_dh pour la campagne, réparties entre sociétés au prorata des kg nets ; (V) résultat analytique = III − IV ; seuil de rentabilité = charges fixes / taux de MCV (non atteignable si la MCV est négative). null = à renseigner.
 - Si l'information n'est pas dans les données, dis-le clairement et ne l'invente pas.
 - Pas de tableaux Markdown ni de titres ; des phrases courtes ou des listes à tirets. Montants au format français (44 880,00 €).
 Date du jour : ${new Date().toLocaleDateString("fr-FR")}.
 DONNÉES :
-${JSON.stringify({mis_a_jour:D.mis_a_jour, cours_eur_mad:D.cours, factures:D.factures, a_completer:D.a_completer, objectifs_clients_unite_non_precisee:D.objectifs_clients, societes:D.referentiel_societes, tarifs_depenses:D.tarifs, avances:D.avances})}`;
+${JSON.stringify({mis_a_jour:D.mis_a_jour, cours_eur_mad:D.cours, factures:D.factures, a_completer:D.a_completer, objectifs_clients_unite_non_precisee:D.objectifs_clients, societes:D.referentiel_societes, tarifs_depenses:D.tarifs, avances:D.avances, analytique:D.analytique})}`;
 
 let tours = [], ctl = null, sample = null;
 const thread = $("thread");

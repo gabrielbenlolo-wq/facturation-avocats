@@ -100,6 +100,7 @@ def page_html(local=False):
         "objectifs_clients": DONNEES["objectifs_clients"],
         "tarifs": DONNEES.get("tarifs"),
         "avances": DONNEES.get("avances", []),
+        "analytique": DONNEES.get("analytique"),
         "a_completer": [{k: a.get(k) for k in ("pdf", "dossier", "whatsapp_par", "whatsapp_le")}
                         for a in DONNEES.get("a_completer", [])],
         "referentiel_societes": {n: {k: v for k, v in s.items() if k not in ("compte", "swift")}
