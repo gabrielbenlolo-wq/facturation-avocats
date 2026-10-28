@@ -10,7 +10,7 @@
   --ng:#4E8A34; --gf:#2F6FB0; --vf:#7A4DB3; --ad:#C46A1E; --gan:#B8344A; --autre:#7B807A;
   --ok:#2E7D32; --warn:#A6620B;
   /* une couleur par chiffre clé ; l'euro et le dirham d'une même mesure partagent la sienne */
-  --k-ca:#0F766E; --k-fac:#475569; --k-pal:#8B5E34; --k-col:#A16207; --k-poids:#0E7490; --k-prix:#4338CA; --k-cours:#1F2937; --k-dep:#B45309; --k-res:#2E7D32; --k-part:#BE185D; --k-trans:#6D28D9; --k-regle:#047857; --k-reste:#B91C1C;
+  --k-ca:#0F766E; --k-fac:#475569; --k-pal:#8B5E34; --k-col:#A16207; --k-poids:#0E7490; --k-prix:#4338CA; --k-cours:#1F2937; --k-dep:#B45309; --k-res:#2E7D32; --k-part:#BE185D; --k-trans:#6D28D9; --k-fruit:#4D7C0F; --k-regle:#047857; --k-reste:#B91C1C;
   --f-display:"Spectral", Georgia, "Times New Roman", serif;
   --f-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r:10px;
@@ -20,13 +20,13 @@
   --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
   --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
   --ok:#7BC47F; --warn:#E3A250;
-  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-regle:#34D399; --k-reste:#F87171; color-scheme:dark }}
+  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-fruit:#A3E635; --k-regle:#34D399; --k-reste:#F87171; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#111711; --panel:#192119; --fg:#E5ECE1; --muted:#9BA897; --line:#2C372B;
   --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
   --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
   --ok:#7BC47F; --warn:#E3A250;
-  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-regle:#34D399; --k-reste:#F87171; color-scheme:dark }
+  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-fruit:#A3E635; --k-regle:#34D399; --k-reste:#F87171; color-scheme:dark }
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .page{max-width:1180px;margin-inline:auto;padding-block:28px 56px;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
@@ -121,6 +121,12 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
 .avance .eyebrow{color:var(--c)}
 .avance b{font-family:var(--f-display);font-size:clamp(1.4rem,3vw,1.8rem);font-variant-numeric:tabular-nums}
 .avance small{color:var(--muted);font-size:.85rem}
+/* prix d'achat du fruit : en jaune tant qu'il est indicatif (à renseigner) */
+.prix-fruit{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-radius:8px;padding:10px 14px;
+  border:1px solid var(--line);border-left:6px solid var(--k-fruit)}
+.prix-fruit.indicatif{background:color-mix(in srgb,#F5C842 30%,var(--panel));border-color:#D9A514;border-left-color:#D9A514}
+.prix-fruit b{font-family:var(--f-display);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.prix-fruit small{display:block;font-size:.78rem;color:var(--muted)}
 .alerte{background:color-mix(in srgb,var(--warn) 12%,var(--panel));border:1px solid var(--warn);border-radius:8px;padding:9px 12px;font-size:.88rem}
 .dep-duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:16px;align-items:start}
 @media (min-width:900px){.dep-duo{grid-template-columns:1.5fr 1fr}}
@@ -133,6 +139,7 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
   background:color-mix(in srgb,#F5C842 18%,var(--panel))}
 .dep .pu.vide{color:var(--warn);font-weight:600}
 .res{color:var(--k-res);font-weight:700}
+.res.perte{color:var(--k-reste)}
 .pile{display:flex;height:40px;border-radius:8px;overflow:hidden}
 .pile div{display:grid;place-items:center;color:var(--panel);font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden}
 .flux{display:grid;grid-template-columns:auto 1fr auto;gap:7px 10px;align-items:center;font-size:.9rem;font-variant-numeric:tabular-nums}
@@ -202,9 +209,10 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
         </table></div>
       </div>
       <div class="card"><h2>Sur 1 kg vendu, où va l'argent ?</h2>
+        <div class="prix-fruit" id="dep-fruit"></div>
         <div class="pile" id="dep-pile"></div>
         <div class="flux" id="dep-flux"></div>
-        <p class="muted" style="font-size:.82rem;margin:0">Pas encore compté : le fruit acheté.</p>
+        <p class="muted" style="font-size:.82rem;margin:0">Le prix d'achat du fruit est indicatif : il sera calculé à partir des fichiers de Kamal (prix par producteur, écarts).</p>
       </div>
     </div>
     <div class="card"><h2>Résultat facture par facture</h2>
@@ -391,7 +399,7 @@ function aCompleter(){
 }
 
 /* ---- Dépenses et résultat ---- */
-const FAMILLES = {palette:["Par palette","--k-pal"], colis:["Par colis","--k-col"], kg:["Par kilo","--k-poids"], transport:["Transport et export","--k-trans"]};
+const FAMILLES = {fruit:["Achat du fruit","--k-fruit"], palette:["Par palette","--k-pal"], colis:["Par colis","--k-col"], kg:["Par kilo","--k-poids"], transport:["Transport et export","--k-trans"]};
 const BASE = {palette:"palettes", colis:"colis", kg:"net"};
 const T = D.tarifs || {};
 const POSTES = T.postes || [];
@@ -492,7 +500,7 @@ function depenses(){
   const ca = taux ? sum(F,"montant") * taux : null, res = ca == null ? null : ca - dep;
   const tuiles = [["ca","CA facturé en dirhams", ca == null ? "—" : dh0(ca), taux ? `${eur.format(sum(F,"montant"))} × ${dhs(taux)}` : "Cours euro/dirham indisponible"],
     ["dep","Dépenses", "− " + dh0(dep), net ? `${dhs(dep/net)} DH/kg · ${dh0(pal ? dep/pal : 0)}/palette` : ""],
-    ["res","Résultat", res == null ? "—" : dh0(res), res != null && net ? `${dhs(res/net)} DH/kg · ${dh0(pal ? res/pal : 0)}/palette` : ""],
+    [res < 0 ? "reste" : "res", res < 0 ? "Résultat (perte)" : "Résultat", res == null ? "—" : dh0(res), res != null && net ? `${dhs(res/net)} DH/kg · ${dh0(pal ? res/pal : 0)}/palette` : ""],
     ["part","Part des dépenses", ca ? new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1}).format(dep/ca*100) + " %" : "—", ca ? "du CA facturé" : ""]];
   $("dep-gros").replaceChildren(...tuiles.map(([k,l,v,n]) => {
     const d = el("div",{},[el("span",{className:"eyebrow",textContent:l}), el("b",{textContent:v}), el("small",{textContent:n})]);
@@ -535,18 +543,30 @@ function depenses(){
     return d;
   }), el("div",{className:"tot"},[el("span",{textContent:"Total dépenses"}), el("span",{textContent:dh0(dep) + (net ? ` · ${dhs(dep/net)} DH/kg` : "")})]));
 
+  // prix d'achat du kilo d'avocat
+  const fruit = POSTES.find(p => famille(p) === "fruit");
+  const vFruit = fruit ? fruit.prix[fruit.prix.length - 1].dh : null;
+  $("dep-fruit").hidden = !fruit;
+  $("dep-fruit").className = "prix-fruit" + (fruit && (fruit.indicatif || vFruit == null) ? " indicatif" : "");
+  $("dep-fruit").replaceChildren(
+    el("span",{},[el("span",{className:"eyebrow",textContent:"Prix d'achat du kilo d'avocat"}),
+      el("small",{textContent: fruit && fruit.indicatif ? "Prix indicatif, à renseigner : moyenne des prix producteurs à venir" : "Moyenne des prix d'achat aux producteurs"})]),
+    el("b",{textContent: vFruit == null ? "à renseigner" : dhs(vFruit) + " DH/kg"}));
+
   // sur 1 kg : prix de vente, chaque famille de dépenses, ce qui reste
   const fam = Object.entries(FAMILLES).map(([f,[titre,c]]) => [titre, c, parPoste.filter(x => famille(x.p) === f).reduce((t,x) => t + x.total, 0)]);
   if (net && ca){
     const pkg = ca / net, reste = res / net;
     $("dep-pile").replaceChildren(...fam.map(([t,c,v]) => Object.assign(el("div",{title:`${t} : ${dhs(v/net)} DH/kg`}),{style:`flex:${v};background:var(${c})`})),
-      Object.assign(el("div",{textContent:`Résultat ${Math.round(reste/pkg*100)} %`}),{style:`flex:${Math.max(res,0)};background:var(--k-res)`}));
+      Object.assign(el("div",{textContent:`Résultat ${Math.round(reste/pkg*100)} %`}),{style:`flex:${Math.max(res,0)};background:var(--k-res)`}),
+      // dépenses plus fortes que la vente : la perte s'affiche en rouge au bout de la barre
+      ...(res < 0 ? [Object.assign(el("div",{textContent:`Perte ${Math.round(-reste/pkg*100)} %`}),{style:`flex:${-res};background:var(--k-reste)`})] : []));
     const ligne = (l, v, c, txt, cls = "") => [el("span",{textContent:l}),
       Object.assign(el("span",{className:"t"}),{style:`width:${Math.min(100,Math.abs(v)/pkg*100).toFixed(1)}%;background:var(${c})`}),
       el("span",{className:"v " + cls,textContent:txt})];
     $("dep-flux").replaceChildren(...ligne("Prix de vente", pkg, "--k-ca", dhs(pkg) + " DH"),
       ...fam.flatMap(([t,c,v]) => ligne(t, v/net, c, "− " + dhs(v/net))),
-      ...ligne("Reste", reste, "--k-res", dhs(reste) + " DH", "res"));
+      ...ligne(reste < 0 ? "Perte" : "Reste", reste, reste < 0 ? "--k-reste" : "--k-res", dhs(reste) + " DH", "res" + (reste < 0 ? " perte" : "")));
   } else {
     $("dep-pile").replaceChildren();
     $("dep-flux").replaceChildren(el("p",{className:"muted",textContent:F.length ? "Cours euro/dirham indisponible." : "Aucune facture."}));
@@ -558,7 +578,7 @@ function depenses(){
     const tr = el("tr",{},[td(x.f.numero), td(dfr(x.f.date)), el("td",{},[el("span",{className:"tag",textContent:x.f.societe})]), td(x.f.groupe),
       td(ent.format(x.f.palettes),"n"), td(ent.format(x.f.colis),"n"), td(ent.format(x.f.net),"n"),
       td(x.ca == null ? "—" : ent.format(Math.round(x.ca)),"n"), td(ent.format(Math.round(x.total)),"n"),
-      td(r == null ? "—" : ent.format(Math.round(r)),"n res"), td(r == null || !x.f.net ? "—" : dhs(r/x.f.net),"n")]);
+      td(r == null ? "—" : ent.format(Math.round(r)),"n res" + (r < 0 ? " perte" : "")), td(r == null || !x.f.net ? "—" : dhs(r/x.f.net),"n")]);
     tr.style.setProperty("--c", coul(x.f.societe));
     return tr;
   }) : [el("tr",{},[el("td",{colSpan:11,className:"empty",textContent:"Aucune facture."})])]));

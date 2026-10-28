@@ -514,6 +514,22 @@
     "_note": "Prix d'achat en DH HT. base = palette, colis ou kg (poids net facturé) ; par = quantité par base. Un changement de prix = nouvelle ligne {depuis, dh} : les factures plus anciennes gardent l'ancien prix. dh null = prix à renseigner. kg_colis = le poste ne compte que pour les factures dont le colis fait ce poids (carton 4 kg, caisse plastique 10 kg). exemple = prix provisoire donné pour préparer la page, à confirmer. Le champ « dh » contient le montant dans la devise du poste (EUR si devise = EUR).",
     "postes": [
       {
+        "id": "fruit",
+        "libelle": "Achat avocat (prix moyen producteurs)",
+        "base": "kg",
+        "famille": "fruit",
+        "par": 1,
+        "indicatif": true,
+        "exemple": true,
+        "note": "Prix indicatif donné par Gabriel le 28/10/2026, en attendant la formule à partir des fichiers de Kamal (prix d'achat par producteur, taux d'écart, prix de vente des écarts).",
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": 20.0
+          }
+        ]
+      },
+      {
         "id": "palette",
         "libelle": "Palette en bois",
         "base": "palette",
