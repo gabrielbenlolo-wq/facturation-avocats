@@ -618,7 +618,7 @@
       },
       {
         "id": "station",
-        "libelle": "Station (emballage)",
+        "libelle": "Station (MOD + énergie)",
         "base": "kg",
         "par": 1,
         "prix": [
@@ -627,6 +627,33 @@
             "dh": 0.8
           }
         ]
+      },
+      {
+        "id": "jni",
+        "libelle": "Frais JNI",
+        "base": "kg",
+        "par": 1,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": null
+          }
+        ],
+        "remarque": "base à confirmer (kg, palette ou envoi)"
+      },
+      {
+        "id": "transport_local",
+        "libelle": "Transport local marchandises",
+        "base": "envoi",
+        "famille": "transport",
+        "par": 1,
+        "prix": [
+          {
+            "depuis": "2026-10-10",
+            "dh": null
+          }
+        ],
+        "remarque": "station → port / frontière, base à confirmer"
       },
       {
         "id": "transport",
@@ -786,5 +813,35 @@
       "date": null,
       "remarque": "Donnée par Gabriel le 28/10/2026 ; date de réception à préciser."
     }
-  ]
+  ],
+  "analytique": {
+    "ecarts_vendus": {
+      "dh_kg": null,
+      "remarque": "recette des écarts ramenée au kg net exporté, à calculer avec les fichiers de Kamal"
+    },
+    "charges_fixes": [
+      {
+        "id": "salaires",
+        "libelle": "Appointements & salaires",
+        "montant_dh": null
+      },
+      {
+        "id": "assurance",
+        "libelle": "Prime d'assurance",
+        "montant_dh": null
+      },
+      {
+        "id": "maintenance",
+        "libelle": "Maintenance & réparation",
+        "montant_dh": null
+      },
+      {
+        "id": "autres",
+        "libelle": "Autres charges d'exploitation",
+        "montant_dh": null
+      }
+    ],
+    "periode_charges_fixes": "campagne 2026-2027 entière",
+    "repartition": "au prorata des kg nets vendus par société"
+  }
 }
