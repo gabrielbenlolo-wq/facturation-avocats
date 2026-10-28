@@ -116,6 +116,11 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
 .gros .eyebrow{color:var(--k)}
 .gros b{font-family:var(--f-display);font-weight:600;font-size:clamp(1.5rem,3vw,1.9rem);font-variant-numeric:tabular-nums;line-height:1.15}
 .gros small{font-size:.8rem;color:var(--muted)}
+@media (min-width:900px){.gros{grid-template-columns:repeat(3,1fr)}}
+.gros div.jaune{background:color-mix(in srgb,#F5C842 32%,var(--panel));border-top-color:#D9A514}
+.gros div.jaune .eyebrow{color:#8A6500}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .gros div.jaune .eyebrow{color:#F5C842}}
+:root[data-theme="dark"] .gros div.jaune .eyebrow{color:#F5C842}
 .avance{border:1px solid var(--line);border-left:8px solid var(--c);border-radius:var(--r);padding:12px 16px;
   background:color-mix(in srgb,var(--c) 12%,var(--panel));display:grid;gap:2px}
 .avance .eyebrow{color:var(--c)}
@@ -498,12 +503,18 @@ function depenses(){
   const parF = F.map(f => ({f, ...coutsFacture(f), ca: taux ? f.montant * taux : null}));
   const dep = parF.reduce((t, x) => t + x.total, 0), net = sum(F,"net"), pal = sum(F,"palettes");
   const ca = taux ? sum(F,"montant") * taux : null, res = ca == null ? null : ca - dep;
+  const pFruit = POSTES.find(p => famille(p) === "fruit"), vF = pFruit ? pFruit.prix[pFruit.prix.length - 1].dh : null;
   const tuiles = [["ca","CA facturé en dirhams", ca == null ? "—" : dh0(ca), taux ? `${eur.format(sum(F,"montant"))} × ${dhs(taux)}` : "Cours euro/dirham indisponible"],
+    // prix d'achat du kilo : en jaune tant qu'il est provisoire
+    ["fruit","Prix d'achat du kilo d'avocat", vF == null ? "à renseigner" : dhs(vF) + " DH/kg",
+      pFruit && pFruit.indicatif ? "Provisoire, à renseigner (formule à venir)" : "Moyenne des prix producteurs", pFruit && pFruit.indicatif],
     ["dep","Dépenses", "− " + dh0(dep), net ? `${dhs(dep/net)} DH/kg · ${dh0(pal ? dep/pal : 0)}/palette` : ""],
     [res < 0 ? "reste" : "res", res < 0 ? "Résultat (perte)" : "Résultat", res == null ? "—" : dh0(res), res != null && net ? `${dhs(res/net)} DH/kg · ${dh0(pal ? res/pal : 0)}/palette` : ""],
+    [res < 0 ? "reste" : "res", res < 0 ? "Résultat au kilo (perte)" : "Résultat au kilo", res != null && net ? dhs(res/net) + " DH/kg" : "—",
+      net && ca ? `Vente ${dhs(ca/net)} − dépenses ${dhs(dep/net)} DH/kg` : ""],
     ["part","Part des dépenses", ca ? new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1}).format(dep/ca*100) + " %" : "—", ca ? "du CA facturé" : ""]];
-  $("dep-gros").replaceChildren(...tuiles.map(([k,l,v,n]) => {
-    const d = el("div",{},[el("span",{className:"eyebrow",textContent:l}), el("b",{textContent:v}), el("small",{textContent:n})]);
+  $("dep-gros").replaceChildren(...tuiles.map(([k,l,v,n,jaune]) => {
+    const d = el("div",{className: jaune ? "jaune" : ""},[el("span",{className:"eyebrow",textContent:l}), el("b",{textContent:v}), el("small",{textContent:n})]);
     d.style.setProperty("--k", `var(--k-${k})`);
     return d;
   }));
