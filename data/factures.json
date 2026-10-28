@@ -636,24 +636,23 @@
         "prix": [
           {
             "depuis": "2026-10-10",
-            "dh": null
+            "dh": 0.5
           }
-        ],
-        "remarque": "base à confirmer (kg, palette ou envoi)"
+        ]
       },
       {
         "id": "transport_local",
         "libelle": "Transport local marchandises",
-        "base": "envoi",
+        "base": "kg",
         "famille": "transport",
         "par": 1,
         "prix": [
           {
             "depuis": "2026-10-10",
-            "dh": null
+            "dh": 0.2
           }
         ],
-        "remarque": "station → port / frontière, base à confirmer"
+        "remarque": "station → port / frontière"
       },
       {
         "id": "transport",
