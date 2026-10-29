@@ -182,6 +182,14 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
 .ana-t b{font-family:var(--f-display);font-weight:600;font-size:clamp(1.3rem,2.6vw,1.7rem);font-variant-numeric:tabular-nums}
 .ana-t small{font-size:.8rem;color:var(--muted)}
 .ana-cf{display:grid;grid-template-columns:1fr auto;gap:5px 10px;font-size:.86rem;align-items:center}
+.cam-choix{display:grid;gap:3px;font-size:.8rem;color:var(--muted);font-weight:600}
+.cam-choix select{font:inherit;font-size:.95rem;font-weight:600;color:var(--fg);padding:6px 10px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel);max-width:100%}
+.cam-fiche{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.88rem;padding:10px 14px;border-radius:8px;border:1px solid var(--line);
+  border-left:6px solid var(--c);background:color-mix(in srgb,var(--c) 8%,var(--panel))}
+.cam-fiche span{display:grid}
+.cam-fiche small{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em}
+#dep-factures tr{cursor:pointer}
 .ana-cf .vide{color:#8A6500;border:1px dashed #D9A514;border-radius:6px;padding:0 8px;background:color-mix(in srgb,#F5C842 22%,var(--panel))}
 #dep-bareme-bloc:not(.ouvert),#dep-detail-bloc:not(.ouvert){display:none !important}
 .leg-dep{display:grid;gap:6px;font-size:.92rem;font-variant-numeric:tabular-nums}
@@ -254,6 +262,19 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
         <div class="pile" id="dep-pile"></div>
         <div class="flux" id="dep-flux"></div>
         <p class="muted" style="font-size:.82rem;margin:0">Le prix d'achat du fruit est indicatif : il sera calculé à partir des fichiers de Kamal (prix par producteur, écarts).</p>
+      </div>
+    </div>
+    <div class="card ana" id="camion" style="display:grid;gap:12px">
+      <div class="dep-head"><div><h2>Rentabilité d'un camion</h2>
+        <p class="muted">Choisis le numéro de facture (ou clique sur une ligne du tableau en dessous) : ce que ce camion a rapporté.</p></div>
+        <label class="cam-choix">N° de facture<select id="cam-choix"></select></label></div>
+      <div class="cam-fiche" id="cam-fiche"></div>
+      <div class="ana-duo">
+        <div class="scroll"><table>
+          <thead><tr><th>Poste</th><th class="n">Total DH</th><th class="n">DH / kg</th><th class="n">% du CA</th></tr></thead>
+          <tbody id="cam-table"></tbody>
+        </table></div>
+        <div class="ana-cotes" id="cam-cotes"></div>
       </div>
     </div>
     <div class="card"><h2>Résultat facture par facture</h2>
@@ -510,7 +531,7 @@ const GROUPES_CV = [["Presta station « kg » (MOD + énergie)", ["station"]], [
   ["Colis : carton 4 kg / caisse plastique 10 kg", ["carton","caisse"]], ["Étiquette thermique", ["etiquette"]],
   ["Transport local marchandises", ["transport_local"]], ["Transport international & transit", ["transport","export"]]];
 
-function analytique(parPoste, F, net, ca, taux){
+function analytique(parPoste, F, net, ca, taux, o = {}){
   const td = (t, cls = "") => el("td",{className:cls,textContent:t});
   const signe = v => (v < 0 ? "− " : "") + ent.format(Math.round(Math.abs(v)));
   const pct = v => ca ? new Intl.NumberFormat("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1}).format(v/ca*100) + " %" : "—";
@@ -541,7 +562,7 @@ function analytique(parPoste, F, net, ca, taux){
   const cvs = parPoste.filter(x => famille(x.p) !== "fruit"), cv = cvs.reduce((t,x) => t + x.total, 0);
   const caV = ca || 0, mb = caV - fruit + (ecarts || 0), mcv = mb - cv;
   // charges fixes de la campagne, réparties au prorata des kg nets de la société affichée
-  const part = filtreSoc ? net / (sum(D.factures,"net") || 1) : 1;
+  const part = o.part ?? (filtreSoc ? net / (sum(D.factures,"net") || 1) : 1), quiPart = o.quiPart || filtreSoc;
   const CF = (A.charges_fixes || []).map(c => ({...c, v: c.montant_dh == null ? null : c.montant_dh * part}));
   const cf = CF.reduce((t,c) => t + (c.v || 0), 0), cfConnu = CF.some(c => c.v != null);
 
@@ -561,10 +582,10 @@ function analytique(parPoste, F, net, ca, taux){
   ligne("cle", "Total charges variables", cv, true);
   ligne("cle", [num("III"), "Marge sur charges variables (MCV) = I − II"], mcv);
   taux_("Taux de MCV = MCV / prix de vente export", mcv);
-  sec("IV", "Charges fixes" + (filtreSoc ? ` · part de ${filtreSoc} (${new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1}).format(part*100)} % des kg)` : ""));
+  sec("IV", "Charges fixes" + (quiPart ? ` · part de ${quiPart} (${new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1}).format(part*100)} % des kg)` : ""));
   CF.forEach(c => ligne("det", c.libelle, c.v, true));
   ligne("cle", [num("V"), "Résultat analytique = III − IV"], mcv - cf);
-  $("ana-table").replaceChildren(...rangs);
+  $(o.table || "ana-table").replaceChildren(...rangs);
 
   // à côté : seuil de rentabilité, prix d'achat maximum du fruit, prix de vente minimum, charges fixes
   const tuile = (k, titre, valeur, note) => {
@@ -587,8 +608,14 @@ function analytique(parPoste, F, net, ca, taux){
   const minVente = net ? (fruit - (ecarts || 0) + cv) / net : null, eurKg = net ? sum(F,"montant") / net : 0;
   const ecartFruit = maxFruit == null ? 0 : fkg - maxFruit;
   const ec = new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:2});
-  $("ana-cotes").replaceChildren(
-    tuile("part", "Seuil de rentabilité = CF / taux MCV", seuil, noteSeuil),
+  // pour un camion : son bénéfice (ou sa perte) à la place du seuil de rentabilité
+  const resV = mcv - cf, palV = sum(F,"palettes");
+  const tete = !o.camion ? tuile("part", "Seuil de rentabilité = CF / taux MCV", seuil, noteSeuil)
+    : tuile(resV < 0 ? "reste" : "res", resV < 0 ? "Perte de ce camion" : "Bénéfice de ce camion", !ca ? "—" : dh0(resV),
+        !ca || !net ? "Cours euro/dirham indisponible." : `${dhs(resV/net)} DH/kg · ${dh0(palV ? resV/palV : 0)}/palette`
+          + (taux ? ` · ≈ ${ec.format(resV/taux)}` : "") + (cfConnu ? " · après sa part de charges fixes" : " · avant charges fixes (à renseigner)"));
+  $(o.cotes || "ana-cotes").replaceChildren(
+    tete,
     tuile("fruit", "Prix d'achat maximum du fruit", maxFruit == null || !ca ? "—" : dhs(maxFruit) + " DH/kg",
       !ca || !net ? "" : `Au-dessus, la MCV devient négative (vente ${dhs(pkg)}${ecarts ? ` + écarts ${dhs(ecarts/net)}` : ""} − charges variables ${dhs(cv/net)}).`
         + (fruitConnu ? ` Aujourd'hui : ${dhs(fkg)} → ${dhs(Math.abs(ecartFruit))} DH/kg ${ecartFruit > 0 ? "de trop" : "de marge"}.` : "")),
@@ -728,6 +755,8 @@ function depenses(){
       td(x.ca == null ? "—" : ent.format(Math.round(x.ca)),"n"), td(ent.format(Math.round(x.total)),"n"),
       td(r == null ? "—" : ent.format(Math.round(r)),"n res" + (r < 0 ? " perte" : "")), td(r == null || !x.f.net ? "—" : dhs(r/x.f.net),"n")]);
     tr.style.setProperty("--c", coul(x.f.societe));
+    tr.title = "Voir la rentabilité de ce camion";
+    tr.onclick = () => { camion = x.f.numero; camionChoisi(); $("camion").scrollIntoView({behavior:"smooth", block:"start"}); };
     return tr;
   }) : [el("tr",{},[el("td",{colSpan:11,className:"empty",textContent:"Aucune facture."})])]));
 
@@ -768,7 +797,34 @@ function depenses(){
     + (BAREME.some(l => l.prix.some(x => x.dh != null)) ? "" : ` Prix attendus après le ${T.transport ? T.transport.attendu : "rendez-vous transport"}.`);
 }
 
-kpis(); depenses(); societes(); repartitions(); registre(); aCompleter();
+/* ---- Rentabilité d'un camion : une facture choisie par son numéro ---- */
+let camion = null;
+function camionChoisi(){
+  const L = D.factures.slice().reverse();
+  $("camion").hidden = !L.length;
+  if (!L.length) return;
+  if (!L.some(f => f.numero === camion)) camion = L[0].numero;
+  $("cam-choix").replaceChildren(...L.map(f => Object.assign(el("option",{value:f.numero,
+    textContent:`${f.numero} · ${dfr(f.date)} · ${f.groupe} · ${ent.format(f.net)} kg`}),{selected:f.numero === camion})));
+  const f = D.factures.find(x => x.numero === camion), taux = D.cours ? D.cours.taux : null;
+  const parPoste = coutsFacture(f).lignes.map(l => ({p:l.p, qte:l.qte, total:l.total, prix:[l.prix], exemple:l.exemple}));
+  const ca = taux ? f.montant * taux : null;
+  const info = (t, v) => el("span",{},[el("small",{textContent:t}), el("b",{textContent:v})]);
+  $("cam-fiche").style.setProperty("--c", coul(f.societe));
+  $("cam-fiche").replaceChildren(info("Date", dfr(f.date)), info("Société", f.societe), info("Client", f.groupe),
+    info("Destination", `${f.destination || "—"} · ${f.transport_mode === "conteneur" ? "conteneur" : "route"}`),
+    info("Palettes", ent.format(f.palettes)), info("Colis", `${ent.format(f.colis)}${f.kg_colis ? ` × ${f.kg_colis} kg` : ""}`),
+    info("Poids net", `${ent.format(f.net)} kg`), info("Montant", eur.format(f.montant) + (f.net ? ` · ${dhs(f.montant / f.net)} €/kg` : "")),
+    info("En dirhams", ca == null ? "—" : `${dh0(ca)} (cours ${dhs(taux)})`), info("Réglé", eur.format(f.regle || 0)),
+    ...(f.transporteur || f.matricule ? [info("Camion", [f.transporteur, f.matricule].filter(Boolean).join(" · "))] : []));
+  analytique(parPoste, [f], f.net, ca, taux, {table:"cam-table", cotes:"cam-cotes", camion:true,
+    part: f.net / (sum(D.factures,"net") || 1), quiPart:"ce camion"});
+}
+$("cam-choix").onchange = e => { camion = e.target.value; camionChoisi(); };
+// lien direct : …#facture=283 NG/2026 ouvre ce camion
+try { const h = decodeURIComponent(location.hash).match(/facture=(.+)/); if (h) camion = h[1].trim(); } catch (e) {}
+
+kpis(); depenses(); societes(); repartitions(); registre(); aCompleter(); camionChoisi();
 $("search").addEventListener("input", registre);
 
 /* ---- Questions à Claude ---- */
@@ -782,7 +838,7 @@ Réponds en français, simplement et précisément, uniquement à partir des don
 - « colis_par_calibre » donne le nombre de colis par calibre ; « 14-16 » est une palette mixte.
 - « tarifs_depenses » donne les prix d'achat en DH (base palette, colis ou kg net ; « par » = quantité par base ; prix daté « depuis », dh null = pas encore renseigné ; « kg_colis » = ne s'applique qu'aux factures dont le colis fait ce poids, ex. carton 4 kg ou caisse plastique 10 kg). Dépenses d'une facture = somme des quantités × prix en vigueur à sa date ; résultat = montant × cours − dépenses. Le poste « Transport » vient du barème « transport.lignes » (destination × mode route/conteneur de la facture ; base envoi, palette ou kg ; devise EUR à convertir au cours) ; « Frais d'export » est un montant par envoi. Signale les prix manquants.
 - « regle » = euros déjà reçus sur la facture (acompte + solde saisis par Karim). « avances » = avances de campagne reçues par une société (ex. 2 000 000 € pour GLOBAL FARMING), comptées dans le montant réglé de cette société ; reste à recevoir = CA facturé − réglé (jamais négatif ; sinon c'est de l'avance pas encore couverte par des factures).
-- « analytique » suit la fiche « structure analytique » de Gabriel : (I) marge brute = CA − achat fruit + écarts vendus (dh_kg × kg nets) ; (II) charges variables = tous les autres postes de tarifs_depenses ; (III) MCV = I − II, taux de MCV = MCV / CA ; (IV) charges fixes = montant_dh pour la campagne, réparties entre sociétés au prorata des kg nets ; (V) résultat analytique = III − IV ; seuil de rentabilité = charges fixes / taux de MCV (non atteignable si la MCV est négative). null = à renseigner.
+- « analytique » suit la fiche « structure analytique » de Gabriel : (I) marge brute = CA − achat fruit + écarts vendus (dh_kg × kg nets) ; (II) charges variables = tous les autres postes de tarifs_depenses ; (III) MCV = I − II, taux de MCV = MCV / CA ; (IV) charges fixes = montant_dh pour la campagne, réparties entre sociétés au prorata des kg nets ; (V) résultat analytique = III − IV ; seuil de rentabilité = charges fixes / taux de MCV (non atteignable si la MCV est négative). null = à renseigner. Pour la rentabilité d'un camion (« facture n° … »), applique cette cascade à cette seule facture, avec sa part des charges fixes au prorata de ses kg nets, et donne le bénéfice ou la perte en DH, DH/kg, par palette et en euros.
 - Si l'information n'est pas dans les données, dis-le clairement et ne l'invente pas.
 - Pas de tableaux Markdown ni de titres ; des phrases courtes ou des listes à tirets. Montants au format français (44 880,00 €).
 Date du jour : ${new Date().toLocaleDateString("fr-FR")}.
