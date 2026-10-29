@@ -10,7 +10,7 @@
   --ng:#4E8A34; --gf:#2F6FB0; --vf:#7A4DB3; --ad:#C46A1E; --gan:#B8344A; --autre:#7B807A;
   --ok:#2E7D32; --warn:#A6620B;
   /* une couleur par chiffre clé ; l'euro et le dirham d'une même mesure partagent la sienne */
-  --k-ca:#0F766E; --k-fac:#475569; --k-pal:#8B5E34; --k-col:#A16207; --k-poids:#0E7490; --k-prix:#4338CA; --k-cours:#1F2937; --k-dep:#B45309; --k-res:#2E7D32; --k-part:#BE185D; --k-trans:#6D28D9; --k-fruit:#4D7C0F; --k-regle:#047857; --k-reste:#B91C1C;
+  --k-ca:#0F766E; --k-fac:#475569; --k-pal:#8B5E34; --k-col:#A16207; --k-poids:#0E7490; --k-prix:#4338CA; --k-cours:#1F2937; --k-dep:#B45309; --k-res:#2E7D32; --k-part:#BE185D; --k-trans:#6D28D9; --k-fruit:#4D7C0F; --k-regle:#047857; --k-reste:#B91C1C; --perte:#D00000; --gain:#1D4ED8; --k-perte:var(--perte);
   --f-display:"Spectral", Georgia, "Times New Roman", serif;
   --f-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r:10px;
@@ -20,13 +20,13 @@
   --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
   --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
   --ok:#7BC47F; --warn:#E3A250;
-  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-fruit:#A3E635; --k-regle:#34D399; --k-reste:#F87171; color-scheme:dark }}
+  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-fruit:#A3E635; --k-regle:#34D399; --k-reste:#F87171; --perte:#FF4040; --gain:#60A5FA; --k-perte:var(--perte); color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#111711; --panel:#192119; --fg:#E5ECE1; --muted:#9BA897; --line:#2C372B;
   --accent:#9CC46B; --accent-soft:#25331F; --flesh:#B8CB5A;
   --ng:#7CC25B; --gf:#6FA8E6; --vf:#B293E6; --ad:#E9964F; --gan:#EE7A8E; --autre:#A3A8A1;
   --ok:#7BC47F; --warn:#E3A250;
-  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-fruit:#A3E635; --k-regle:#34D399; --k-reste:#F87171; color-scheme:dark }
+  --k-ca:#2DD4BF; --k-fac:#94A3B8; --k-pal:#D4A373; --k-col:#FACC15; --k-poids:#67E8F9; --k-prix:#A5B4FC; --k-cours:#E5E7EB; --k-dep:#FB923C; --k-res:#4ADE80; --k-part:#F472B6; --k-trans:#C4B5FD; --k-fruit:#A3E635; --k-regle:#34D399; --k-reste:#F87171; --perte:#FF4040; --gain:#60A5FA; --k-perte:var(--perte); color-scheme:dark }
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .page{max-width:1180px;margin-inline:auto;padding-block:28px 56px;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
@@ -143,8 +143,11 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
 .dep .pu{display:inline-block;min-width:72px;text-align:right;border:1px solid var(--line);border-radius:6px;padding:0 7px;
   background:color-mix(in srgb,#F5C842 18%,var(--panel))}
 .dep .pu.vide{color:var(--warn);font-weight:600}
-.res{color:var(--k-res);font-weight:700}
-.res.perte{color:var(--k-reste)}
+/* résultats : perte en rouge, positif en bleu ; les dépenses restent en noir */
+.res{color:var(--gain);font-weight:700}
+.res.perte{color:var(--perte)}
+.gros div.perte b,.ana-t.perte b{color:var(--perte)}
+.gros div.gain b,.ana-t.gain b{color:var(--gain)}
 .pile{display:flex;height:40px;border-radius:8px;overflow:hidden}
 .pile div{display:grid;place-items:center;color:var(--panel);font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden}
 .flux{display:grid;grid-template-columns:auto 1fr auto;gap:7px 10px;align-items:center;font-size:.9rem;font-variant-numeric:tabular-nums}
@@ -174,7 +177,7 @@ footer{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ana .badge{color:#F5C842}}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ana-cf .vide{color:#F5C842}}
 :root[data-theme="dark"] .ana .badge,:root[data-theme="dark"] .ana-cf .vide{color:#F5C842}
-.ana .moins{color:var(--k-dep)}
+.ana .moins{color:var(--fg)}
 .ana-cotes{display:grid;gap:12px}
 .ana-t{border:1px solid var(--line);border-left:6px solid var(--k);border-radius:var(--r);padding:12px 14px;display:grid;gap:3px;
   background:color-mix(in srgb,var(--k) 8%,var(--panel))}
@@ -589,7 +592,7 @@ function analytique(parPoste, F, net, ca, taux, o = {}){
 
   // à côté : seuil de rentabilité, prix d'achat maximum du fruit, prix de vente minimum, charges fixes
   const tuile = (k, titre, valeur, note) => {
-    const d = el("div",{className:"ana-t"},[el("span",{className:"eyebrow",textContent:titre}), el("b",{textContent:valeur}), el("small",{textContent:note})]);
+    const d = el("div",{className:"ana-t" + (/^[-−]/.test(valeur) ? " perte" : k === "res" ? " gain" : "")},[el("span",{className:"eyebrow",textContent:titre}), el("b",{textContent:valeur}), el("small",{textContent:note})]);
     d.style.setProperty("--k", `var(--k-${k})`);
     return d;
   };
@@ -611,7 +614,7 @@ function analytique(parPoste, F, net, ca, taux, o = {}){
   // pour un camion : son bénéfice (ou sa perte) à la place du seuil de rentabilité
   const resV = mcv - cf, palV = sum(F,"palettes");
   const tete = !o.camion ? tuile("part", "Seuil de rentabilité = CF / taux MCV", seuil, noteSeuil)
-    : tuile(resV < 0 ? "reste" : "res", resV < 0 ? "Perte de ce camion" : "Bénéfice de ce camion", !ca ? "—" : dh0(resV),
+    : tuile(resV < 0 ? "perte" : "res", resV < 0 ? "Perte de ce camion" : "Bénéfice de ce camion", !ca ? "—" : dh0(resV),
         !ca || !net ? "Cours euro/dirham indisponible." : `${dhs(resV/net)} DH/kg · ${dh0(palV ? resV/palV : 0)}/palette`
           + (taux ? ` · ≈ ${ec.format(resV/taux)}` : "") + (cfConnu ? " · après sa part de charges fixes" : " · avant charges fixes (à renseigner)"));
   $(o.cotes || "ana-cotes").replaceChildren(
@@ -671,12 +674,13 @@ function depenses(){
     ["fruit","Prix d'achat du kilo d'avocat", vF == null ? "à renseigner" : dhs(vF) + " DH/kg",
       pFruit && pFruit.indicatif ? "Provisoire, à renseigner (formule à venir)" : "Moyenne des prix producteurs", pFruit && pFruit.indicatif],
     ["dep","Dépenses", "− " + dh0(dep), net ? `${dhs(dep/net)} DH/kg · ${dh0(pal ? dep/pal : 0)}/palette` : ""],
-    [res < 0 ? "reste" : "res", res < 0 ? "Résultat (perte)" : "Résultat", res == null ? "—" : dh0(res), res != null && net ? `${dhs(res/net)} DH/kg · ${dh0(pal ? res/pal : 0)}/palette` : ""],
-    [res < 0 ? "reste" : "res", res < 0 ? "Résultat au kilo (perte)" : "Résultat au kilo", res != null && net ? dhs(res/net) + " DH/kg" : "—",
+    [res < 0 ? "perte" : "res", res < 0 ? "Résultat (perte)" : "Résultat", res == null ? "—" : dh0(res), res != null && net ? `${dhs(res/net)} DH/kg · ${dh0(pal ? res/pal : 0)}/palette` : ""],
+    [res < 0 ? "perte" : "res", res < 0 ? "Résultat au kilo (perte)" : "Résultat au kilo", res != null && net ? dhs(res/net) + " DH/kg" : "—",
       net && ca ? `Vente ${dhs(ca/net)} − dépenses ${dhs(dep/net)} DH/kg` : ""],
     ["part","Part des dépenses", ca ? new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1}).format(dep/ca*100) + " %" : "—", ca ? "du CA facturé" : ""]];
   $("dep-gros").replaceChildren(...tuiles.map(([k,l,v,n,jaune]) => {
-    const d = el("div",{className: jaune ? "jaune" : ""},[el("span",{className:"eyebrow",textContent:l}), el("b",{textContent:v}), el("small",{textContent:n})]);
+    const neg = k !== "dep" && /^[-−]/.test(v), cls = jaune ? "jaune" : neg ? "perte" : k === "res" ? "gain" : "";
+    const d = el("div",{className: cls},[el("span",{className:"eyebrow",textContent:l}), el("b",{textContent:v}), el("small",{textContent:n})]);
     d.style.setProperty("--k", `var(--k-${k})`);
     return d;
   }));
@@ -735,13 +739,13 @@ function depenses(){
     $("dep-pile").replaceChildren(...fam.map(([t,c,v]) => Object.assign(el("div",{title:`${t} : ${dhs(v/net)} DH/kg`}),{style:`flex:${v};background:var(${c})`})),
       Object.assign(el("div",{textContent:`Résultat ${Math.round(reste/pkg*100)} %`}),{style:`flex:${Math.max(res,0)};background:var(--k-res)`}),
       // dépenses plus fortes que la vente : la perte s'affiche en rouge au bout de la barre
-      ...(res < 0 ? [Object.assign(el("div",{textContent:`Perte ${Math.round(-reste/pkg*100)} %`}),{style:`flex:${-res};background:var(--k-reste)`})] : []));
+      ...(res < 0 ? [Object.assign(el("div",{textContent:`Perte ${Math.round(-reste/pkg*100)} %`}),{style:`flex:${-res};background:var(--perte)`})] : []));
     const ligne = (l, v, c, txt, cls = "") => [el("span",{textContent:l}),
       Object.assign(el("span",{className:"t"}),{style:`width:${Math.min(100,Math.abs(v)/pkg*100).toFixed(1)}%;background:var(${c})`}),
       el("span",{className:"v " + cls,textContent:txt})];
     $("dep-flux").replaceChildren(...ligne("Prix de vente", pkg, "--k-ca", dhs(pkg) + " DH"),
       ...fam.flatMap(([t,c,v]) => ligne(t, v/net, c, "− " + dhs(v/net))),
-      ...ligne(reste < 0 ? "Perte" : "Reste", reste, reste < 0 ? "--k-reste" : "--k-res", dhs(reste) + " DH", "res" + (reste < 0 ? " perte" : "")));
+      ...ligne(reste < 0 ? "Perte" : "Reste", reste, reste < 0 ? "--perte" : "--k-res", dhs(reste) + " DH", "res" + (reste < 0 ? " perte" : "")));
   } else {
     $("dep-pile").replaceChildren();
     $("dep-flux").replaceChildren(el("p",{className:"muted",textContent:F.length ? "Cours euro/dirham indisponible." : "Aucune facture."}));
@@ -753,7 +757,7 @@ function depenses(){
     const tr = el("tr",{},[td(x.f.numero), td(dfr(x.f.date)), el("td",{},[el("span",{className:"tag",textContent:x.f.societe})]), td(x.f.groupe),
       td(ent.format(x.f.palettes),"n"), td(ent.format(x.f.colis),"n"), td(ent.format(x.f.net),"n"),
       td(x.ca == null ? "—" : ent.format(Math.round(x.ca)),"n"), td(ent.format(Math.round(x.total)),"n"),
-      td(r == null ? "—" : ent.format(Math.round(r)),"n res" + (r < 0 ? " perte" : "")), td(r == null || !x.f.net ? "—" : dhs(r/x.f.net),"n")]);
+      td(r == null ? "—" : ent.format(Math.round(r)),"n res" + (r < 0 ? " perte" : "")), td(r == null || !x.f.net ? "—" : dhs(r/x.f.net),"n res" + (r < 0 ? " perte" : ""))]);
     tr.style.setProperty("--c", coul(x.f.societe));
     tr.title = "Voir la rentabilité de ce camion";
     tr.onclick = () => { camion = x.f.numero; camionChoisi(); $("camion").scrollIntoView({behavior:"smooth", block:"start"}); };
